@@ -1,0 +1,188 @@
+{
+  "scrap": {
+    "message": "Escanear"
+  },
+  "stop": {
+    "message": "Detener"
+  },
+  "download_json": {
+    "message": "Descargar JSON"
+  },
+  "clear": {
+    "message": "Borrar"
+  },
+  "sync_stored": {
+    "message": "Sincronizar páginas guardadas"
+  },
+  "settings": {
+    "message": "Ajustes"
+  },
+  "open_dashboard": {
+    "message": "Abrir Dashboard Web"
+  },
+  "signed_in_as": {
+    "message": "Hola, $FIRST$",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "sync_off": {
+    "message": "La sincronización está desactivada. Añade tu clave en Ajustes."
+  },
+  "summary_counts": {
+    "message": "Páginas: $FIRST$ · Entradas: $SECOND$",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      },
+      "second": {
+        "content": "$2"
+      }
+    }
+  },
+  "summary_range": {
+    "message": "Del $FIRST$ al $SECOND$",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      },
+      "second": {
+        "content": "$2"
+      }
+    }
+  },
+  "last_sync": {
+    "message": "Última sincronización: $FIRST$",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "never_synced": {
+    "message": "Aún no se ha sincronizado."
+  },
+  "pending_uploads": {
+    "message": "Pendientes de subir: $FIRST$ páginas",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "queued_pages": {
+    "message": "$FIRST$ páginas en cola para subir.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "import_in_progress": {
+    "message": "Importando $FIRST$ entradas…",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "import_completed": {
+    "message": "Última importación: $FIRST$ procesadas, $SECOND$ sin datos del episodio.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      },
+      "second": {
+        "content": "$2"
+      }
+    }
+  },
+  "import_failed": {
+    "message": "La última importación falló en el servidor."
+  },
+  "confirm_clear": {
+    "message": "¿Borrar $FIRST$ entradas escaneadas?",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "settings_title": {
+    "message": "Ajustes de Frunchy"
+  },
+  "base_url_label": {
+    "message": "URL del servidor"
+  },
+  "sync_key_label": {
+    "message": "Clave de sincronización"
+  },
+  "save_and_check": {
+    "message": "Guardar y comprobar"
+  },
+  "checking": {
+    "message": "Comprobando…"
+  },
+  "connected_as": {
+    "message": "Conectado como $FIRST$.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "err_reload_tab": {
+    "message": "Abre tu historial de Crunchyroll (recárgalo si acabas de actualizar la extensión)."
+  },
+  "err_not_history_page": {
+    "message": "Primero abre tu historial de Crunchyroll."
+  },
+  "err_invalid_url": {
+    "message": "Esa URL del servidor no es válida."
+  },
+  "err_permission_denied": {
+    "message": "Chrome no permitió el acceso a $FIRST$.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "err_unauthorized": {
+    "message": "Tu clave de sincronización no es válida o fue revocada. Revísala en Ajustes."
+  },
+  "err_invalid_submission": {
+    "message": "El servidor no pudo leer una página del historial."
+  },
+  "err_history_owner_missing": {
+    "message": "Una página del historial no indica a qué perfil de Crunchyroll pertenece."
+  },
+  "err_history_owner_mismatch": {
+    "message": "Tu cuenta de Frunchy está vinculada a otro perfil de Crunchyroll."
+  },
+  "err_history_owner_taken": {
+    "message": "Este perfil de Crunchyroll ya está vinculado a otro usuario de Frunchy."
+  },
+  "err_payload_too_large": {
+    "message": "La subida era demasiado grande para el servidor."
+  },
+  "err_not_found": {
+    "message": "El servidor no conoce esa importación."
+  },
+  "err_network": {
+    "message": "No se puede conectar con el servidor de Frunchy. Se reintentará más tarde."
+  },
+  "err_server_error": {
+    "message": "El servidor de Frunchy tuvo un problema. Se reintentará más tarde."
+  },
+  "err_unknown": {
+    "message": "La sincronización falló ($FIRST$).",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  }
+}

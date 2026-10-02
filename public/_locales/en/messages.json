@@ -1,0 +1,188 @@
+{
+  "scrap": {
+    "message": "Scrap"
+  },
+  "stop": {
+    "message": "Stop"
+  },
+  "download_json": {
+    "message": "Download JSON"
+  },
+  "clear": {
+    "message": "Clear"
+  },
+  "sync_stored": {
+    "message": "Sync stored pages"
+  },
+  "settings": {
+    "message": "Settings"
+  },
+  "open_dashboard": {
+    "message": "Open web dashboard"
+  },
+  "signed_in_as": {
+    "message": "Hi, $FIRST$",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "sync_off": {
+    "message": "Sync is off. Add your sync key in Settings."
+  },
+  "summary_counts": {
+    "message": "Pages: $FIRST$ · Entries: $SECOND$",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      },
+      "second": {
+        "content": "$2"
+      }
+    }
+  },
+  "summary_range": {
+    "message": "From $FIRST$ to $SECOND$",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      },
+      "second": {
+        "content": "$2"
+      }
+    }
+  },
+  "last_sync": {
+    "message": "Last sync: $FIRST$",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "never_synced": {
+    "message": "Not synced yet."
+  },
+  "pending_uploads": {
+    "message": "Waiting to upload: $FIRST$ pages",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "queued_pages": {
+    "message": "Queued $FIRST$ pages for upload.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "import_in_progress": {
+    "message": "Importing $FIRST$ entries…",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "import_completed": {
+    "message": "Last import: $FIRST$ processed, $SECOND$ without episode details.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      },
+      "second": {
+        "content": "$2"
+      }
+    }
+  },
+  "import_failed": {
+    "message": "The last import failed on the server."
+  },
+  "confirm_clear": {
+    "message": "Delete $FIRST$ scraped entries?",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "settings_title": {
+    "message": "Frunchy settings"
+  },
+  "base_url_label": {
+    "message": "Backend URL"
+  },
+  "sync_key_label": {
+    "message": "Sync key"
+  },
+  "save_and_check": {
+    "message": "Save and check"
+  },
+  "checking": {
+    "message": "Checking…"
+  },
+  "connected_as": {
+    "message": "Connected as $FIRST$.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "err_reload_tab": {
+    "message": "Open your Crunchyroll history page (reload it if the extension was just updated)."
+  },
+  "err_not_history_page": {
+    "message": "Open your Crunchyroll history page first."
+  },
+  "err_invalid_url": {
+    "message": "That backend URL isn't valid."
+  },
+  "err_permission_denied": {
+    "message": "Chrome didn't allow access to $FIRST$.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "err_unauthorized": {
+    "message": "Your sync key is wrong or was revoked. Check it in Settings."
+  },
+  "err_invalid_submission": {
+    "message": "The server couldn't read a history page."
+  },
+  "err_history_owner_missing": {
+    "message": "A history page doesn't say which Crunchyroll profile it belongs to."
+  },
+  "err_history_owner_mismatch": {
+    "message": "Your Frunchy account is linked to a different Crunchyroll profile."
+  },
+  "err_history_owner_taken": {
+    "message": "This Crunchyroll profile is already linked to another Frunchy user."
+  },
+  "err_payload_too_large": {
+    "message": "The upload was too large for the server."
+  },
+  "err_not_found": {
+    "message": "The server doesn't know that import."
+  },
+  "err_network": {
+    "message": "Can't reach the Frunchy server. Retrying later."
+  },
+  "err_server_error": {
+    "message": "The Frunchy server had a problem. Retrying later."
+  },
+  "err_unknown": {
+    "message": "Sync failed ($FIRST$).",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  }
+}

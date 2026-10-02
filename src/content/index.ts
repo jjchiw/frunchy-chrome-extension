@@ -1,6 +1,6 @@
-import { storage, type HistoryPage } from "src/storage";
+import type { HistoryPage } from "src/storage";
+import { newestEntry, type Marker } from "src/sync";
 
-console.log("injected");
 const s = document.createElement("script");
 s.src = chrome.runtime.getURL("src/content/injected.js");
 s.onload = function () {
@@ -10,28 +10,11 @@ s.onload = function () {
 };
 (document.head || document.documentElement).appendChild(s);
 
-window.addEventListener(
-  "message",
-  (event) => {
-    // We only accept messages from ourselves
-    if (event.source !== window || event.data?.type !== "frunchyroll") {
-      return;
-    }
-    let body: HistoryPage["body"];
-    try {
-      body = JSON.parse(event.data.responseText);
-    } catch (err) {
-      console.error("Frunchy: watch-history response is not JSON", err);
-      return;
-    }
-    storage.addPage({
-      url: event.data.url,
-      capturedAt: new Date().toISOString(),
-      body,
-    });
-  },
-  false
-);
+// Pages captured since this tab loaded start at the newest history page and
+// run contiguously while scrolling, so their newest entry is what a completed
+// scrape has synced up to.
+const sessionStartedAt = new Date().toISOString();
+let sessionNewest: Marker | null = null;
 
 let lastBodyScrollHeight = 0;
 let isSameHeightTimes = 0;
@@ -40,14 +23,17 @@ let scrollTimer: number | undefined;
 // Tell an open popup that scrolling started or stopped. Fails harmlessly when
 // no popup is open.
 const notifyScrolling = (scrolling: boolean) =>
-  chrome.runtime
-    .sendMessage({ message: "SCROLL_STATE", scrolling })
-    .catch(() => undefined);
+  chrome.runtime.sendMessage({ message: "SCROLL_STATE", scrolling }).catch(() => undefined);
 
-const stopScrolling = () => {
+// reason: "end" (history exhausted), "marker" (reached synced history) or "user".
+const stopScrolling = (reason: "end" | "marker" | "user") => {
+  if (scrollTimer === undefined) return;
   clearTimeout(scrollTimer);
   scrollTimer = undefined;
   notifyScrolling(false);
+  chrome.runtime
+    .sendMessage({ message: "RUN_END", reason, newest: sessionNewest, sessionStartedAt })
+    .catch(console.error);
 };
 
 const scrollDown = () => {
@@ -65,7 +51,7 @@ const scrollDown = () => {
       return;
     }
     // Page height stopped growing: reached the end of the history.
-    stopScrolling();
+    stopScrolling("end");
   }, 2000);
 };
 
@@ -77,26 +63,34 @@ const startScrolling = () => {
   notifyScrolling(true);
 };
 
-// console.log("Frunchy", "Try to connect");
-// const port = chrome.runtime.connect();
+window.addEventListener(
+  "message",
+  async (event) => {
+    // We only accept messages from ourselves
+    if (event.source !== window || event.data?.type !== "frunchyroll") {
+      return;
+    }
+    let body: HistoryPage["body"];
+    try {
+      body = JSON.parse(event.data.responseText);
+    } catch (err) {
+      console.error("Frunchy: watch-history response is not JSON", err);
+      return;
+    }
+    const page: HistoryPage = { url: event.data.url, capturedAt: new Date().toISOString(), body };
 
-// port.onMessage.addListener((evt) => {
-//   console.log("frunchy", evt);
-//   console.log("frunchy", "yay");
-// });
+    const newest = newestEntry(page);
+    if (newest && (!sessionNewest || newest.datePlayed > sessionNewest.datePlayed)) {
+      sessionNewest = newest;
+    }
 
-// chrome.runtime.onConnect.addListener((port) => {
-//   console.log("frunchy", "connected!!!!!");
-//   port.onMessage.addListener((msg) => {
-//     console.log(msg);
-//   });
-// });
-
-chrome.runtime.onConnect.addListener((port) => {
-  port.onMessage.addListener((msg) => {
-    // Handle message however you want
-  });
-});
+    const response = await chrome.runtime
+      .sendMessage({ message: "PAGE_CAPTURED", page })
+      .catch(console.error);
+    if (response?.reachedMarker) stopScrolling("marker");
+  },
+  false
+);
 
 // Injected on every Crunchyroll page because it's an SPA: the history page is
 // often reached without a full page load, so a /history match would miss it.
@@ -106,14 +100,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch (request.message) {
     case "SCROLL_DOWN":
       if (!isHistoryPage()) {
-        sendResponse({ ok: false, error: "Open your Crunchyroll history page first." });
+        sendResponse({ ok: false, error: "not_history_page" });
         return;
       }
       startScrolling();
       sendResponse({ ok: true, scrolling: true });
       return;
     case "SCROLL_STOP":
-      stopScrolling();
+      stopScrolling("user");
       sendResponse({ ok: true, scrolling: false });
       return;
     case "SCROLL_STATUS":
@@ -123,8 +117,3 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse("pong");
   }
 });
-
-// console.log("add listener");
-// chrome.runtime.onMessage.addListener((request, sender, sendResponse) =>
-//   sendResponse("pong")
-// );

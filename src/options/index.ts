@@ -1,10 +1,10 @@
 import { mount } from "svelte";
-import Options from "src/components/Options.svelte";
+import Settings from "src/components/Settings.svelte";
 
 const target = document.getElementById("app")!;
 
 function render() {
-    mount(Options, { target });
+    mount(Settings, { target });
 }
 
 document.addEventListener("DOMContentLoaded", render);
