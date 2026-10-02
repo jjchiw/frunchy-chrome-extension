@@ -2,19 +2,19 @@
   import { onMount } from "svelte";
   import { storage, type ScrapeSummary } from "src/storage";
 
-  let errorMessage: string = null;
+  let errorMessage: string | null = null;
   let scrolling = false;
   let summary: ScrapeSummary = { pages: 0, entries: 0, oldest: null, newest: null };
 
   const refreshSummary = async () => (summary = await storage.getSummary());
 
-  const formatDate = (iso: string) => new Date(iso).toLocaleDateString();
+  const formatDate = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString() : "");
 
   // Resolves to null when the active tab has no content script to answer.
   const sendToActiveTab = (message: string): Promise<any> =>
     new Promise((resolve) => {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { message }, (response) => {
+        chrome.tabs.sendMessage(tabs[0].id!, { message }, (response) => {
           resolve(chrome.runtime.lastError ? null : response);
         });
       });

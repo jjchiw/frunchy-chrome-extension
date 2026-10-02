@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Frunchy: a Chrome extension (Manifest V3) that scrapes a user's Crunchyroll watch history. It started from the `chrome-extension-svelte-typescript-boilerplate` template (Svelte 3 + TypeScript + Vite 3 + `@crxjs/vite-plugin`); `README.md` and the `get_started*` icons are still the boilerplate's. It is part of a larger `FrunchyWrapper` workspace; sibling directories (`../FrunchyBackend`, `../browser-extension-sutil`, `../test-read-json`) are separate projects.
+Frunchy: a Chrome extension (Manifest V3) that scrapes a user's Crunchyroll watch history. Built with Svelte 5, TypeScript 6, Vite 8 and `@crxjs/vite-plugin` 2.x (Node >= 22.12). It started from the `chrome-extension-svelte-typescript-boilerplate` template; `README.md` and the `get_started*` icons are still the boilerplate's. It is part of a larger `FrunchyWrapper` workspace; sibling directories (`../FrunchyBackend`, `../browser-extension-sutil`, `../test-read-json`) are separate projects.
 
 ## Commands
 
@@ -12,7 +12,7 @@ Frunchy: a Chrome extension (Manifest V3) that scrapes a user's Crunchyroll watc
 npm i              # install
 npm run dev        # Vite + CRXJS dev build into dist/ with HMR for extension pages and content scripts
 npm run build      # production build into dist/
-npm run check      # svelte-check type checking (the only "test" step; CI runs build + check on Node 16)
+npm run check      # svelte-check type checking (the only "test" step; CI runs build + check on Node 22)
 ```
 
 There is no test suite or linter. To try the extension, load `dist/` as an unpacked extension at `chrome://extensions` (Developer mode), then open `https://www.crunchyroll.com/history`.
@@ -33,5 +33,8 @@ How the scraping data moves through the extension. This only makes sense across 
 
 ## Conventions and gotchas
 
-- Import from the project root with the `src/...` alias (defined in `vite.config.ts` and `tsconfig.json`), for example `import { storage } from "src/storage"`.
+- Import from the project root with the `src/...` alias (defined in `vite.config.ts` and `tsconfig.json` `paths`), for example `import { storage } from "src/storage"`.
+- TypeScript is `strict` (from `@tsconfig/svelte` 5) with `verbatimModuleSyntax`, so type-only imports need `type`. Chrome typings come from `"types": ["chrome"]` in `tsconfig.json`; TS 6 no longer loads `@types/*` automatically.
+- Svelte components still use legacy (non-runes) syntax such as `on:click` and `let` state; mount them with `mount()` from `svelte`, not `new Component()`.
+- Stay on `@crxjs/vite-plugin` >= 2.x: older betas emitted `use_dynamic_url: true`, which made Chrome deny content-script chunk imports.
 - `.private/` (gitignored) holds a longer reference version of `injected.js` that also captures request bodies and headers.

@@ -1,10 +1,10 @@
 import { crx } from "@crxjs/vite-plugin";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
-import { resolve } from "path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
-import manifest from "./manifest.json";
+import manifest from "./manifest.json" with { type: "json" };
 
-const srcDir = resolve(__dirname, "src");
+const srcDir = fileURLToPath(new URL("./src", import.meta.url));
 
 // https://vitejs.dev/config/
 export default defineConfig({

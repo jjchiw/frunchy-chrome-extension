@@ -3,9 +3,11 @@
     "compilerOptions": {
         "composite": true,
         "module": "esnext",
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "resolveJsonModule": true,
-        "allowSyntheticDefaultImports": true
+        "allowSyntheticDefaultImports": true,
+        "types": ["node", "chrome"],
+        "skipLibCheck": true
     },
     "include": ["vite.config.ts", "manifest.json"]
 }
