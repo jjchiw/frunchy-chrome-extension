@@ -15,8 +15,8 @@
   chrome.storage.onChanged.addListener((changes) => {
     console.log("woohooohoho");
     console.log(changes);
-    page = changes.page.newValue as number;
-    total = changes.total.oldValue as number;
+    if (changes.page) page = changes.page.newValue as number;
+    if (changes.total) total = changes.total.newValue as number;
   });
 
   //   var port = chrome.runtime.connect();

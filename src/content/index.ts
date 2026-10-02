@@ -44,7 +44,7 @@ window.addEventListener(
         console.log(event.data.url);
         const page = getQueryStringValue(event.data.url, "page") ?? 1;
         const jsonResult = JSON.parse(event.data.responseText);
-        const total = db.total ?? 0 + jsonResult.total;
+        const total = (db.total ?? 0) + jsonResult.total;
         console.log("page", page);
         console.log("db", db);
         console.log("total", total);
@@ -59,21 +59,21 @@ let lastBodyScrollHeight = 0;
 let isSameHeightTimes = 0;
 
 const scrollDown = () => {
-  // setTimeout(() => {
-  window.scrollTo(0, document.body.scrollHeight);
-  if (lastBodyScrollHeight !== document.body.scrollHeight) {
-    lastBodyScrollHeight = document.body.scrollHeight;
-    isSameHeightTimes = 0;
-    scrollDown();
-    return;
-  }
-  if (isSameHeightTimes < 3) {
-    isSameHeightTimes++;
-    scrollDown();
-    return;
-  }
-  // alert("Finish Scrapping");
-  // }, 2000);
+  setTimeout(() => {
+    window.scrollTo(0, document.body.scrollHeight);
+    if (lastBodyScrollHeight !== document.body.scrollHeight) {
+      lastBodyScrollHeight = document.body.scrollHeight;
+      isSameHeightTimes = 0;
+      scrollDown();
+      return;
+    }
+    if (isSameHeightTimes < 3) {
+      isSameHeightTimes++;
+      scrollDown();
+      return;
+    }
+    // alert("Finish Scrapping");
+  }, 2000);
 };
 
 // console.log("Frunchy", "Try to connect");
@@ -97,11 +97,18 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 });
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) =>
-  sendResponse("pong")
-);
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.message === "SCROLL_DOWN") {
+    lastBodyScrollHeight = 0;
+    isSameHeightTimes = 0;
+    scrollDown();
+  }
+  sendResponse("pong");
+});
 
 // console.log("add listener");
 // chrome.runtime.onMessage.addListener((request, sender, sendResponse) =>
 //   sendResponse("pong")
 // );
+
+export {};
