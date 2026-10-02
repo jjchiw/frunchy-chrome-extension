@@ -1,11 +1,8 @@
 {
-    "name": "chrome-extension-svelte-typescript-boilerplate",
-    "version": "3.0.0",
+    "name": "frunchy-browser-extension",
+    "version": "0.1.0",
+    "private": true,
     "type": "module",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/nekitcorp/chrome-extension-svelte-typescript-boilerplate.git"
-    },
     "scripts": {
         "dev": "vite",
         "build": "vite build",

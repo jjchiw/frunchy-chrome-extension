@@ -1,7 +1,7 @@
 {
-  "name": "svelte-ts-extension-boilerplate",
-  "description": "Boilerplate for Chrome Extension Svelte Typescript project",
-  "version": "1.0",
+  "name": "Frunchy",
+  "description": "Syncs your Crunchyroll watch history to Frunchy.",
+  "version": "0.1.0",
   "manifest_version": 3,
   "icons": {
     "16": "src/assets/icons/get_started16.png",
@@ -11,11 +11,9 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://www.crunchyroll.com/history",
-        "https://www.crunchyroll.com/es/history"
-      ],
-      "js": ["src/content/index.ts"]
+      "matches": ["https://www.crunchyroll.com/*"],
+      "js": ["src/content/index.ts"],
+      "run_at": "document_start"
     }
   ],
   "background": {
@@ -27,6 +25,7 @@
   },
   "action": {
     "default_popup": "src/popup/popup.html",
+    "default_title": "Frunchy",
     "default_icon": {
       "16": "src/assets/icons/get_started16.png",
       "32": "src/assets/icons/get_started32.png",
@@ -34,10 +33,10 @@
       "128": "src/assets/icons/get_started128.png"
     }
   },
-  "permissions": ["activeTab", "storage", "tabs", "scripting"],
-  "host_permissions": ["*://crunchyroll.com/*"],
+  "permissions": ["activeTab", "storage", "unlimitedStorage", "tabs", "scripting"],
+  "host_permissions": ["https://www.crunchyroll.com/*"],
   "externally_connectable": {
-    "matches": ["*://crunchyroll.com/*"]
+    "matches": ["https://www.crunchyroll.com/*"]
   },
   "web_accessible_resources": [
     {

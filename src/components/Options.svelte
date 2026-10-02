@@ -1,101 +1,86 @@
 <script lang="ts">
-  export let count: number;
-  let successMessage: string = null;
-  let page = 0;
-  let total = 0;
+  import { onMount } from "svelte";
+  import { storage, type ScrapeSummary } from "src/storage";
 
-  //   chrome.runtime.onMessageExternal.addListener(function (
-  //     request,
-  //     sender,
-  //     sendResponse
-  //   ) {
+  let errorMessage: string = null;
+  let scrolling = false;
+  let summary: ScrapeSummary = { pages: 0, entries: 0, oldest: null, newest: null };
 
-  //   });
+  const refreshSummary = async () => (summary = await storage.getSummary());
 
-  chrome.storage.onChanged.addListener((changes) => {
-    console.log("woohooohoho");
-    console.log(changes);
-    if (changes.page) page = changes.page.newValue as number;
-    if (changes.total) total = changes.total.newValue as number;
+  const formatDate = (iso: string) => new Date(iso).toLocaleDateString();
+
+  // Resolves to null when the active tab has no content script to answer.
+  const sendToActiveTab = (message: string): Promise<any> =>
+    new Promise((resolve) => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        chrome.tabs.sendMessage(tabs[0].id, { message }, (response) => {
+          resolve(chrome.runtime.lastError ? null : response);
+        });
+      });
+    });
+
+  onMount(async () => {
+    refreshSummary();
+    scrolling = (await sendToActiveTab("SCROLL_STATUS"))?.scrolling ?? false;
   });
 
-  //   var port = chrome.runtime.connect();
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "local" && changes.index) refreshSummary();
+  });
 
-  function increment() {
-    count += 1;
-  }
-
-  function decrement() {
-    count -= 1;
-  }
+  chrome.runtime.onMessage.addListener((request) => {
+    if (request.message === "SCROLL_STATE") scrolling = request.scrolling;
+  });
 
   async function scrap() {
-    console.log("scrap clicked");
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      chrome.tabs.sendMessage(
-        tabs[0].id,
-        {
-          message: "SCROLL_DOWN",
-        },
-        function (response) {
-          console.log(response);
-          // window.close();
-        }
-      );
-    });
-    // scrollDown();
-    // const [tab] = await chrome.tabs.query({
-    //   active: true,
-    //   lastFocusedWindow: true,
-    // });
-    // console.log("tab", tab);
-    // const response = await chrome.tabs.sendMessage(tab.id, {
-    //   greeting: "hello",
-    // });
-    // do something with response here, not outside the function
-    // chrome.runtime.sendMessage("SCROLL_DOWN");
-    // console.log("frunchy try send message");
-    // chrome.runtime.sendMessage("SCROLL_DOWN", function (response) {
-    //   console.log(chrome.runtime.lastError);
-    //   if (chrome.runtime.lastError) {
-    //     setTimeout(scrap, 1000);
-    //   } else {
-    //     console.log("frunchy", response);
-    //   }
-    // });
-    // console.log("post message");
-    // window.postMessage(
-    //   {
-    //     type: "SCROLL_DOWN",
-    //     url: this._url,
-    //     responseText: this.responseText,
-    //   },
-    //   "*"
-    // );
+    const response = await sendToActiveTab("SCROLL_DOWN");
+    if (!response) {
+      errorMessage =
+        "Open your Crunchyroll history page (reload it if the extension was just updated).";
+      return;
+    }
+    errorMessage = response.ok === false ? response.error : null;
+    scrolling = response.scrolling ?? false;
   }
 
-  function save() {
-    // storage.set({ count }).then(() => {
-    //     successMessage = "Options saved!";
-    //     setTimeout(() => {
-    //         successMessage = null;
-    //     }, 1500);
-    // });
+  async function stop() {
+    await sendToActiveTab("SCROLL_STOP");
+    scrolling = false;
+  }
+
+  async function download() {
+    const pages = await storage.getPages();
+    const json = JSON.stringify({ exportedAt: new Date().toISOString(), pages }, null, 2);
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+    link.download = `crunchyroll-history-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 10_000);
+  }
+
+  async function clear() {
+    if (!confirm(`Delete ${summary.entries} scraped entries?`)) return;
+    await storage.clear();
+    refreshSummary();
   }
 </script>
 
 <div class="container">
-  <p>Send updates:</p>
-  <p>Page:<b>{page}</b></p>
-  <p>Total:<b>{total}</b></p>
-  <div>
-    <button on:click={decrement}>-</button>
-    <button on:click={increment}>+</button>
-    <button on:click={save}>Save</button>
-    <button on:click={scrap}>Scrap</button>
-    {#if successMessage}<span class="success">{successMessage}</span>{/if}
-    {#if successMessage}<span class="success">{successMessage}</span>{/if}
+  <p>Pages: <b>{summary.pages}</b> · Entries: <b>{summary.entries}</b></p>
+  {#if summary.oldest}
+    <p>From <b>{formatDate(summary.oldest)}</b> to <b>{formatDate(summary.newest)}</b></p>
+  {/if}
+  <div class="actions">
+    {#if scrolling}
+      <button class="stop" on:click={stop}>Stop</button>
+    {:else}
+      <button on:click={scrap}>Scrap</button>
+    {/if}
+    <button on:click={download} disabled={!summary.pages}>Download JSON</button>
+    <button class="secondary" on:click={clear} disabled={!summary.pages}>Clear</button>
   </div>
+  {#if errorMessage}<p class="error">{errorMessage}</p>{/if}
 </div>
 
 <style>
@@ -118,8 +103,29 @@
     background-color: #27ae60;
   }
 
-  .success {
-    color: #2ecc71;
-    font-weight: bold;
+  button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .stop,
+  .stop:hover,
+  .stop:focus {
+    background-color: #c0392b;
+  }
+
+  .secondary,
+  .secondary:hover,
+  .secondary:focus {
+    background-color: #7f8c8d;
+  }
+
+  .actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .error {
+    color: #c0392b;
   }
 </style>

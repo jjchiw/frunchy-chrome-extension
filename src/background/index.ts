@@ -1,7 +1,7 @@
 import { storage } from "../storage";
 
 chrome.runtime.onInstalled.addListener(() => {
-  storage.get().then(console.log);
+  storage.getSummary().then(console.log);
 });
 
 // chrome.webRequest.onCompleted.addListener(

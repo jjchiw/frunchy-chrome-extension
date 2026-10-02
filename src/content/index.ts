@@ -1,3 +1,5 @@
+import { storage, type HistoryPage } from "src/storage";
+
 console.log("injected");
 const s = document.createElement("script");
 s.src = chrome.runtime.getURL("src/content/injected.js");
@@ -8,58 +10,48 @@ s.onload = function () {
 };
 (document.head || document.documentElement).appendChild(s);
 
-const getQueryStringValue = (url, key) => {
-  var queryString = url.split("&");
-  var getParameter;
-  var i;
-  for (i = 0; i < queryString.length; i++) {
-    getParameter = queryString[i].split("=");
-    if (getParameter[0] === key) {
-      return getParameter[1] === undefined
-        ? true
-        : decodeURIComponent(getParameter[1]);
-    }
-  }
-};
-
 window.addEventListener(
   "message",
   (event) => {
     // We only accept messages from ourselves
-    if (event.source !== window) {
+    if (event.source !== window || event.data?.type !== "frunchyroll") {
       return;
     }
-
-    if (event.data.type === "frunchyroll") {
-      console.log("send message frunchy");
-      console.log("event", event.data);
-      // chrome.runtime.sendMessage(
-      //   chrome.runtime.id,
-      //   { url: event.data.url, responseText: event.data.responseText },
-      //   function (response) {
-      //     console.log("Message Sent");
-      //   }
-      // );
-      chrome.storage.sync.get().then((db) => {
-        console.log(event.data.url);
-        const page = getQueryStringValue(event.data.url, "page") ?? 1;
-        const jsonResult = JSON.parse(event.data.responseText);
-        const total = (db.total ?? 0) + jsonResult.total;
-        console.log("page", page);
-        console.log("db", db);
-        console.log("total", total);
-        chrome.storage.sync.set({ count: 0, page: page, total: total });
-      });
+    let body: HistoryPage["body"];
+    try {
+      body = JSON.parse(event.data.responseText);
+    } catch (err) {
+      console.error("Frunchy: watch-history response is not JSON", err);
+      return;
     }
+    storage.addPage({
+      url: event.data.url,
+      capturedAt: new Date().toISOString(),
+      body,
+    });
   },
   false
 );
 
 let lastBodyScrollHeight = 0;
 let isSameHeightTimes = 0;
+let scrollTimer: number | undefined;
+
+// Tell an open popup that scrolling started or stopped. Fails harmlessly when
+// no popup is open.
+const notifyScrolling = (scrolling: boolean) =>
+  chrome.runtime
+    .sendMessage({ message: "SCROLL_STATE", scrolling })
+    .catch(() => undefined);
+
+const stopScrolling = () => {
+  clearTimeout(scrollTimer);
+  scrollTimer = undefined;
+  notifyScrolling(false);
+};
 
 const scrollDown = () => {
-  setTimeout(() => {
+  scrollTimer = window.setTimeout(() => {
     window.scrollTo(0, document.body.scrollHeight);
     if (lastBodyScrollHeight !== document.body.scrollHeight) {
       lastBodyScrollHeight = document.body.scrollHeight;
@@ -72,8 +64,17 @@ const scrollDown = () => {
       scrollDown();
       return;
     }
-    // alert("Finish Scrapping");
+    // Page height stopped growing: reached the end of the history.
+    stopScrolling();
   }, 2000);
+};
+
+const startScrolling = () => {
+  clearTimeout(scrollTimer);
+  lastBodyScrollHeight = 0;
+  isSameHeightTimes = 0;
+  scrollDown();
+  notifyScrolling(true);
 };
 
 // console.log("Frunchy", "Try to connect");
@@ -97,18 +98,33 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 });
 
+// Injected on every Crunchyroll page because it's an SPA: the history page is
+// often reached without a full page load, so a /history match would miss it.
+const isHistoryPage = () => /\/history\/?$/.test(location.pathname);
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.message === "SCROLL_DOWN") {
-    lastBodyScrollHeight = 0;
-    isSameHeightTimes = 0;
-    scrollDown();
+  switch (request.message) {
+    case "SCROLL_DOWN":
+      if (!isHistoryPage()) {
+        sendResponse({ ok: false, error: "Open your Crunchyroll history page first." });
+        return;
+      }
+      startScrolling();
+      sendResponse({ ok: true, scrolling: true });
+      return;
+    case "SCROLL_STOP":
+      stopScrolling();
+      sendResponse({ ok: true, scrolling: false });
+      return;
+    case "SCROLL_STATUS":
+      sendResponse({ ok: true, scrolling: scrollTimer !== undefined });
+      return;
+    default:
+      sendResponse("pong");
   }
-  sendResponse("pong");
 });
 
 // console.log("add listener");
 // chrome.runtime.onMessage.addListener((request, sender, sendResponse) =>
 //   sendResponse("pong")
 // );
-
-export {};
