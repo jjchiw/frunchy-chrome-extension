@@ -29,6 +29,9 @@ export type SyncState = {
   lastImport: LastImport | null;
   lastError: SyncError | null;
   lastRejectionAt: string | null;
+  // Page id → hash of the body the backend last accepted. The newest history
+  // page is re-captured on every history page load; unchanged, it's not resent.
+  sent: Record<string, string>;
 };
 
 const emptyState: SyncState = {
@@ -36,9 +39,10 @@ const emptyState: SyncState = {
   lastImport: null,
   lastError: null,
   lastRejectionAt: null,
+  sent: {},
 };
 
-type QueueItem = { attempts: number; nextAttemptAt: number };
+type QueueItem = { attempts: number; nextAttemptAt: number; hash: string };
 type Queue = Record<string, QueueItem>;
 
 const RETRY_ALARM = "frunchy-upload-retry";
@@ -60,9 +64,12 @@ export const syncState = {
     ...((await chrome.storage.local.get("sync")).sync as Partial<SyncState> | undefined),
   }),
 
-  update: (patch: Partial<SyncState>): Promise<void> =>
+  update: (patch: Partial<SyncState> | ((state: SyncState) => Partial<SyncState>)): Promise<void> =>
     serialized(async () => {
-      await chrome.storage.local.set({ sync: { ...(await syncState.get()), ...patch } });
+      const state = await syncState.get();
+      await chrome.storage.local.set({
+        sync: { ...state, ...(typeof patch === "function" ? patch(state) : patch) },
+      });
     }),
 };
 
@@ -95,21 +102,32 @@ export const reachesMarker = (page: HistoryPage, marker: Marker | null) =>
   marker.profileId === page.profileId &&
   (page.body.data ?? []).some((entry) => !!entry.date_played && entry.date_played <= marker.datePlayed);
 
+const bodyHash = async (page: HistoryPage) => {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(page.body)));
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+};
+
 // Queues pages for upload. The backend needs the profile, so pages captured
-// before it was known are skipped. Returns how many were queued.
-export const enqueue = (pages: HistoryPage[]): Promise<number> =>
-  serialized(async () => {
+// before it was known are skipped, and so are pages whose body the backend
+// already accepted unless `force` (a user-requested resend). Returns how many
+// were queued.
+export const enqueue = async (pages: HistoryPage[], { force = false } = {}): Promise<number> => {
+  const candidates = await Promise.all(
+    pages.filter((page) => page.profileId).map(async (page) => ({ page, id: pageId(page), hash: await bodyHash(page) }))
+  );
+  return serialized(async () => {
+    const { sent } = await syncState.get();
     const queue = await getQueue();
     const items: Record<string, HistoryPage> = {};
-    for (const page of pages) {
-      if (!page.profileId) continue;
-      const id = pageId(page);
-      queue[id] = { attempts: 0, nextAttemptAt: 0 };
+    for (const { page, id, hash } of candidates) {
+      if (!force && sent[id] === hash) continue;
+      queue[id] = { attempts: 0, nextAttemptAt: 0, hash };
       items[uploadKey(id)] = page;
     }
     await chrome.storage.local.set({ ...items, uploadQueue: queue });
     return Object.keys(items).length;
   });
+};
 
 const dequeue = async (id: string) => {
   await updateQueue((queue) => delete queue[id]);
@@ -134,8 +152,10 @@ const uploadOne = async (id: string): Promise<boolean> => {
       profileId: page.profileId,
       pages: [{ url, capturedAt, body }],
     });
+    const hash = (await getQueue())[id]?.hash;
     await dequeue(id);
-    await syncState.update({
+    await syncState.update((state) => ({
+      sent: hash ? { ...state.sent, [id]: hash } : state.sent,
       lastError: null,
       lastImport: {
         importId: accepted.importId,
@@ -145,7 +165,7 @@ const uploadOne = async (id: string): Promise<boolean> => {
         status: accepted.status,
         counts: null,
       },
-    });
+    }));
     return true;
   } catch (err) {
     const failure = failureOf(err);

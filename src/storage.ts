@@ -50,7 +50,12 @@ export const storage = {
         const index = await getIndex();
         const id = pageId(page);
         index[id] = statsOf(page);
+        // Drop a copy of the same page stored before its profile was known
+        // (older versions keyed pages by URL alone).
+        const stale = page.profileId ? [page.url, pageId({ ...page, profileId: null })].filter((key) => key in index) : [];
+        for (const key of stale) delete index[key];
         await chrome.storage.local.set({ [pageKey(id)]: page, index });
+        if (stale.length) await chrome.storage.local.remove(stale.map(pageKey));
       })
       .catch(console.error)),
 

@@ -10,7 +10,7 @@
 
   let summary = $state<ScrapeSummary>({ pages: 0, entries: 0, oldest: null, newest: null });
   let scrolling = $state(false);
-  let notice = $state<string | null>(null);
+  let notice = $state<{ text: string; isError: boolean } | null>(null);
   let settings = $state<Settings | null>(null);
   let me = $state<Me | null>(null);
   let sync = $state<SyncState | null>(null);
@@ -87,10 +87,10 @@
   async function scrap() {
     const response = await sendToActiveTab("SCROLL_DOWN");
     if (!response) {
-      notice = t("err_reload_tab");
+      notice = { text: t("err_reload_tab"), isError: true };
       return;
     }
-    notice = response.ok === false ? errorText(response.error) : null;
+    notice = response.ok === false ? { text: errorText(response.error), isError: true } : null;
     scrolling = response.scrolling ?? false;
   }
 
@@ -101,9 +101,12 @@
 
   async function syncStored() {
     const response = await chrome.runtime.sendMessage({ message: "SYNC_STORED" });
-    notice = response?.skipped
-      ? t("queued_pages_skipped", response.queued, response.skipped)
-      : t("queued_pages", response?.queued ?? 0);
+    notice = {
+      text: response?.skipped
+        ? t("queued_pages_skipped", response.queued, response.skipped)
+        : t("queued_pages", response?.queued ?? 0),
+      isError: false,
+    };
   }
 
   async function download() {
@@ -178,7 +181,7 @@
     <button onclick={download} disabled={!summary.pages}>{t("download_json")}</button>
     <button class="secondary" onclick={clear} disabled={!summary.pages}>{t("clear")}</button>
   </div>
-  {#if notice}<p class="error">{notice}</p>{/if}
+  {#if notice}<p class={notice.isError ? "error" : "muted"}>{notice.text}</p>{/if}
 </div>
 
 <style>

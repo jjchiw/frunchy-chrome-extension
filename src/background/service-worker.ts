@@ -16,7 +16,8 @@ const handleCapturedPage = async (page: HistoryPage) => {
 
 const syncStoredPages = async () => {
   const pages = await storage.getPages();
-  const queued = await enqueue(pages);
+  // An explicit resend, e.g. after the backend reset a binding: no dedup.
+  const queued = await enqueue(pages, { force: true });
   processQueue();
   return { queued, skipped: pages.length - queued };
 };

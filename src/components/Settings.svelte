@@ -43,7 +43,7 @@
       await saveSettings(settings);
       // A different backend or key is a different Frunchy user: start over.
       if (saved?.baseUrl !== settings.baseUrl || saved?.syncKey !== settings.syncKey) {
-        await syncState.update({ marker: null, lastImport: null, lastRejectionAt: null });
+        await syncState.update({ marker: null, lastImport: null, lastRejectionAt: null, sent: {} });
       }
       await syncState.update({ lastError: null });
       saved = settings;
