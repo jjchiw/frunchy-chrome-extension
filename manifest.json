@@ -11,8 +11,11 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://www.crunchyroll.com/history"],
-      "js": ["src/content/index.ts", "src/content/inject.ts"]
+      "matches": [
+        "https://www.crunchyroll.com/history",
+        "https://www.crunchyroll.com/es/history"
+      ],
+      "js": ["src/content/index.ts"]
     }
   ],
   "background": {
@@ -31,8 +34,11 @@
       "128": "src/assets/icons/get_started128.png"
     }
   },
-  "permissions": ["activeTab", "storage", "tabs"],
+  "permissions": ["activeTab", "storage", "tabs", "scripting"],
   "host_permissions": ["*://crunchyroll.com/*"],
+  "externally_connectable": {
+    "matches": ["*://crunchyroll.com/*"]
+  },
   "web_accessible_resources": [
     {
       "resources": ["src/content/injected.js"],

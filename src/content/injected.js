@@ -1,4 +1,5 @@
 // @ts-nocheck
+
 (function (xhr) {
   var XHR = XMLHttpRequest.prototype;
 
@@ -32,8 +33,25 @@
 
             // printing url, request headers, response headers, response body, to console
 
-            console.log(this._url);
-            console.log(JSON.parse(arr));
+            // console.log("cadainjeakbmghlmcipfijnckelfgbhp");
+            console.log("posting message na");
+            // console.log(JSON.parse(arr));
+            window.postMessage(
+              {
+                type: "frunchyroll",
+                url: this._url,
+                responseText: this.responseText,
+              },
+              "*"
+            );
+
+            // chrome.storage.sync.get().then((db) => {
+            //   console.log(this._url);
+            //   const page = getQueryStringValue(url, "page");
+            //   const jsonResult = JSON.parse(arr);
+            //   const total = db.total + jsonResult.total;
+            //   chrome.storage.sync.set({ count: 0, page: page, total: total });
+            // });
           } catch (err) {
             console.log("Error in responseType try catch");
             console.log(err);
