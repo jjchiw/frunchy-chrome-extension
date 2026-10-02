@@ -12,10 +12,11 @@ export type Me = {
   historyOwnerBound: boolean;
 };
 
+// Contract v1.2: profileId is required (the page URL only names the account).
 export type ImportSubmission = {
   exportedAt?: string;
-  profileId?: string;
-  pages: HistoryPage[];
+  profileId: string;
+  pages: Pick<HistoryPage, "url" | "capturedAt" | "body">[];
 };
 
 export type ImportAccepted = {

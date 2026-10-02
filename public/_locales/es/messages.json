@@ -157,7 +157,7 @@
     "message": "El servidor no pudo leer una página del historial."
   },
   "err_history_owner_missing": {
-    "message": "Una página del historial no indica a qué perfil de Crunchyroll pertenece."
+    "message": "Frunchy no sabía a qué perfil de Crunchyroll pertenece este historial. Recarga la página del historial y vuelve a escanear."
   },
   "err_history_owner_mismatch": {
     "message": "Tu cuenta de Frunchy está vinculada a otro perfil de Crunchyroll."
@@ -182,6 +182,25 @@
     "placeholders": {
       "first": {
         "content": "$1"
+      }
+    }
+  },
+  "crunchyroll_profile": {
+    "message": "Perfil de Crunchyroll: $FIRST$",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "queued_pages_skipped": {
+    "message": "$FIRST$ páginas en cola. $SECOND$ se capturaron antes de conocer el perfil de Crunchyroll; vuelve a escanearlas para sincronizarlas.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      },
+      "second": {
+        "content": "$2"
       }
     }
   }

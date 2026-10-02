@@ -7,6 +7,9 @@ export type HistoryEntry = { id?: string; date_played?: string };
 export type HistoryPage = {
   url: string;
   capturedAt: string;
+  // The Crunchyroll profile active when the page was captured. The URL only
+  // names the account, and two profiles share it.
+  profileId: string | null;
   body: { total?: number; data?: HistoryEntry[]; meta?: unknown };
 };
 
@@ -16,7 +19,11 @@ type PageIndex = Record<string, PageStats>;
 
 export type ScrapeSummary = PageStats & { pages: number };
 
-const pageKey = (url: string) => `page:${url}`;
+// Profiles of one account request identical URLs, so the profile is part of the id.
+export const pageId = (page: Pick<HistoryPage, "url" | "profileId">) =>
+  `${page.profileId ?? "unknown"} ${page.url}`;
+
+const pageKey = (id: string) => `page:${id}`;
 
 const statsOf = (page: HistoryPage): PageStats => {
   const dates = (page.body.data ?? [])
@@ -41,8 +48,9 @@ export const storage = {
     (writes = writes
       .then(async () => {
         const index = await getIndex();
-        index[page.url] = statsOf(page);
-        await chrome.storage.local.set({ [pageKey(page.url)]: page, index });
+        const id = pageId(page);
+        index[id] = statsOf(page);
+        await chrome.storage.local.set({ [pageKey(id)]: page, index });
       })
       .catch(console.error)),
 
@@ -70,4 +78,14 @@ export const storage = {
         await chrome.storage.local.remove([...keys, "index"]);
       })
       .catch(console.error)),
+};
+
+// The last Crunchyroll profile the page-world hook reported, for the popup.
+export type CrunchyrollProfile = { profileId: string; profileName: string | null };
+
+export const crunchyrollProfile = {
+  get: async (): Promise<CrunchyrollProfile | null> =>
+    ((await chrome.storage.local.get("crunchyrollProfile")).crunchyrollProfile as CrunchyrollProfile | undefined) ??
+    null,
+  set: (profile: CrunchyrollProfile): Promise<void> => chrome.storage.local.set({ crunchyrollProfile: profile }),
 };

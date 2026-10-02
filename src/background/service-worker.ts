@@ -16,9 +16,29 @@ const handleCapturedPage = async (page: HistoryPage) => {
 
 const syncStoredPages = async () => {
   const pages = await storage.getPages();
-  await enqueue(pages);
+  const queued = await enqueue(pages);
   processQueue();
-  return { queued: pages.length };
+  return { queued, skipped: pages.length - queued };
+};
+
+// The XHR hook must run in the page's world before Crunchyroll's own scripts,
+// so it's registered here (world: "MAIN") rather than injected as a <script>
+// tag by the content script, which loads too late to see the first token
+// response. Registrations persist, so replace any from a previous version.
+const HOOK_ID = "frunchy-xhr-hook";
+const registerHook = async () => {
+  const existing = await chrome.scripting.getRegisteredContentScripts({ ids: [HOOK_ID] });
+  if (existing.length) await chrome.scripting.unregisterContentScripts({ ids: [HOOK_ID] });
+  await chrome.scripting.registerContentScripts([
+    {
+      id: HOOK_ID,
+      matches: ["https://www.crunchyroll.com/*"],
+      js: ["injected.js"],
+      runAt: "document_start",
+      world: "MAIN",
+      persistAcrossSessions: true,
+    },
+  ]);
 };
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -42,5 +62,11 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   if (isRetryAlarm(alarm)) processQueue();
 });
 
-chrome.runtime.onStartup.addListener(() => processQueue());
-chrome.runtime.onInstalled.addListener(() => processQueue());
+chrome.runtime.onStartup.addListener(() => {
+  registerHook().catch(console.error);
+  processQueue();
+});
+chrome.runtime.onInstalled.addListener(() => {
+  registerHook().catch(console.error);
+  processQueue();
+});

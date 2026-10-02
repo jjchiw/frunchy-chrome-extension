@@ -3,7 +3,7 @@
   import { api, type Me } from "src/api";
   import { errorText, t } from "src/i18n";
   import { getSettings, isConfigured, type Settings } from "src/settings";
-  import { storage, type ScrapeSummary } from "src/storage";
+  import { crunchyrollProfile, storage, type CrunchyrollProfile, type ScrapeSummary } from "src/storage";
   import { queueSize, syncState, type SyncState } from "src/sync";
 
   const POLL_MS = 3000;
@@ -15,6 +15,7 @@
   let me = $state<Me | null>(null);
   let sync = $state<SyncState | null>(null);
   let pending = $state(0);
+  let profile = $state<CrunchyrollProfile | null>(null);
 
   const configured = $derived(settings !== null && isConfigured(settings));
   const lastSyncAt = $derived(me?.lastSyncAt ?? sync?.lastImport?.acceptedAt ?? null);
@@ -27,6 +28,7 @@
     sync = await syncState.get();
     pending = await queueSize();
   };
+  const refreshProfile = async () => (profile = await crunchyrollProfile.get());
 
   // Resolves to null when the active tab has no content script to answer.
   const sendToActiveTab = (message: string): Promise<any> =>
@@ -53,6 +55,7 @@
   onMount(() => {
     refreshSummary();
     refreshSync();
+    refreshProfile();
     sendToActiveTab("SCROLL_STATUS").then((status) => (scrolling = status?.scrolling ?? false));
     getSettings().then((loaded) => {
       settings = loaded;
@@ -65,6 +68,7 @@
       if (area !== "local") return;
       if (changes.index) refreshSummary();
       if (changes.sync || changes.uploadQueue) refreshSync();
+      if (changes.crunchyrollProfile) refreshProfile();
     };
     const onMessage = (request: any) => {
       if (request.message === "SCROLL_STATE") scrolling = request.scrolling;
@@ -97,12 +101,20 @@
 
   async function syncStored() {
     const response = await chrome.runtime.sendMessage({ message: "SYNC_STORED" });
-    notice = t("queued_pages", response?.queued ?? 0);
+    notice = response?.skipped
+      ? t("queued_pages_skipped", response.queued, response.skipped)
+      : t("queued_pages", response?.queued ?? 0);
   }
 
   async function download() {
     const pages = await storage.getPages();
-    const json = JSON.stringify({ exportedAt: new Date().toISOString(), pages });
+    // Same envelope as POST /api/imports; profileId only when it's unambiguous.
+    const profileIds = [...new Set(pages.map((page) => page.profileId).filter(Boolean))];
+    const json = JSON.stringify({
+      exportedAt: new Date().toISOString(),
+      ...(profileIds.length === 1 ? { profileId: profileIds[0] } : {}),
+      pages,
+    });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(new Blob([json], { type: "application/json" }));
     link.download = `crunchyroll-history-${new Date().toISOString().slice(0, 10)}.json`;
@@ -128,6 +140,9 @@
     <button class="link" onclick={() => chrome.runtime.openOptionsPage()}>{t("settings")}</button>
   </header>
 
+  {#if profile}
+    <p class="muted">{t("crunchyroll_profile", profile.profileName ?? profile.profileId.slice(0, 8))}</p>
+  {/if}
   <p>{t("summary_counts", summary.pages, summary.entries)}</p>
   {#if summary.oldest}
     <p>{t("summary_range", formatDate(summary.oldest), formatDate(summary.newest))}</p>

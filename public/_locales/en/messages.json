@@ -157,7 +157,7 @@
     "message": "The server couldn't read a history page."
   },
   "err_history_owner_missing": {
-    "message": "A history page doesn't say which Crunchyroll profile it belongs to."
+    "message": "Frunchy didn't know which Crunchyroll profile this history belongs to. Reload the history page and scrape again."
   },
   "err_history_owner_mismatch": {
     "message": "Your Frunchy account is linked to a different Crunchyroll profile."
@@ -182,6 +182,25 @@
     "placeholders": {
       "first": {
         "content": "$1"
+      }
+    }
+  },
+  "crunchyroll_profile": {
+    "message": "Crunchyroll profile: $FIRST$",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "queued_pages_skipped": {
+    "message": "Queued $FIRST$ pages. $SECOND$ were captured before Frunchy knew the Crunchyroll profile; scrape them again to sync them.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      },
+      "second": {
+        "content": "$2"
       }
     }
   }

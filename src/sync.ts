@@ -1,16 +1,17 @@
 // Upload queue and sync state, driven by the background service worker.
 //
-// Each queued page is its own `upload:<url>` key and `uploadQueue` holds the
+// Each queued page is its own `upload:<page id>` key and `uploadQueue` holds the
 // retry bookkeeping, mirroring how storage.ts keeps scraped pages. Retries use
 // chrome.alarms because the service worker is suspended between events.
 
 import { api, ApiFailure, type ImportCounts, type ImportStatus } from "src/api";
 import { getSettings, isConfigured } from "src/settings";
-import type { HistoryPage } from "src/storage";
+import { pageId, type HistoryPage } from "src/storage";
 
 // The newest entry of a scrape that reached the end of the history (or the
-// previous marker) without rejections: everything up to it has been sent.
-export type Marker = { id: string; datePlayed: string };
+// previous marker) without rejections: everything up to it has been sent for
+// that Crunchyroll profile.
+export type Marker = { id: string; datePlayed: string; profileId: string | null };
 
 export type LastImport = {
   importId: string;
@@ -43,7 +44,7 @@ type Queue = Record<string, QueueItem>;
 const RETRY_ALARM = "frunchy-upload-retry";
 const RETRY_DELAYS_MS = [30, 60, 120, 300, 600, 1800].map((s) => s * 1000);
 
-const uploadKey = (url: string) => `upload:${url}`;
+const uploadKey = (id: string) => `upload:${id}`;
 
 // Serializes read-modify-write cycles within one extension context.
 let writes: Promise<unknown> = Promise.resolve();
@@ -81,49 +82,59 @@ export const newestEntry = (page: HistoryPage): Marker | null => {
   let newest: Marker | null = null;
   for (const entry of page.body.data ?? []) {
     if (entry.id && entry.date_played && (!newest || entry.date_played > newest.datePlayed)) {
-      newest = { id: entry.id, datePlayed: entry.date_played };
+      newest = { id: entry.id, datePlayed: entry.date_played, profileId: page.profileId };
     }
   }
   return newest;
 };
 
-// True once the page reaches entries at or before the marker, i.e. everything
-// further down has already been sent.
+// True once the page reaches entries at or before the marker of the same
+// profile, i.e. everything further down has already been sent.
 export const reachesMarker = (page: HistoryPage, marker: Marker | null) =>
   !!marker &&
+  marker.profileId === page.profileId &&
   (page.body.data ?? []).some((entry) => !!entry.date_played && entry.date_played <= marker.datePlayed);
 
-export const enqueue = (pages: HistoryPage[]): Promise<void> =>
+// Queues pages for upload. The backend needs the profile, so pages captured
+// before it was known are skipped. Returns how many were queued.
+export const enqueue = (pages: HistoryPage[]): Promise<number> =>
   serialized(async () => {
     const queue = await getQueue();
     const items: Record<string, HistoryPage> = {};
     for (const page of pages) {
-      queue[page.url] = { attempts: 0, nextAttemptAt: 0 };
-      items[uploadKey(page.url)] = page;
+      if (!page.profileId) continue;
+      const id = pageId(page);
+      queue[id] = { attempts: 0, nextAttemptAt: 0 };
+      items[uploadKey(id)] = page;
     }
     await chrome.storage.local.set({ ...items, uploadQueue: queue });
+    return Object.keys(items).length;
   });
 
-const dequeue = async (url: string) => {
-  await updateQueue((queue) => delete queue[url]);
-  await chrome.storage.local.remove(uploadKey(url));
+const dequeue = async (id: string) => {
+  await updateQueue((queue) => delete queue[id]);
+  await chrome.storage.local.remove(uploadKey(id));
 };
 
 const failureOf = (err: unknown) =>
   err instanceof ApiFailure ? err : new ApiFailure(null, "network", String(err));
 
 // Uploads one queued page. Returns false when the rest of the queue should wait.
-const uploadOne = async (url: string): Promise<boolean> => {
+const uploadOne = async (id: string): Promise<boolean> => {
   const settings = await getSettings();
-  const page = (await chrome.storage.local.get(uploadKey(url)))[uploadKey(url)] as HistoryPage | undefined;
-  if (!page) {
-    await dequeue(url);
+  const page = (await chrome.storage.local.get(uploadKey(id)))[uploadKey(id)] as HistoryPage | undefined;
+  if (!page?.profileId) {
+    await dequeue(id);
     return true;
   }
 
   try {
-    const accepted = await api.submitImport(settings, { pages: [page] });
-    await dequeue(url);
+    const { url, capturedAt, body } = page;
+    const accepted = await api.submitImport(settings, {
+      profileId: page.profileId,
+      pages: [{ url, capturedAt, body }],
+    });
+    await dequeue(id);
     await syncState.update({
       lastError: null,
       lastImport: {
@@ -143,7 +154,7 @@ const uploadOne = async (url: string): Promise<boolean> => {
 
     if (failure.retryable) {
       await updateQueue((queue) => {
-        const item = queue[url];
+        const item = queue[id];
         if (!item) return;
         item.attempts++;
         item.nextAttemptAt = Date.now() + RETRY_DELAYS_MS[Math.min(item.attempts, RETRY_DELAYS_MS.length) - 1];
@@ -159,7 +170,7 @@ const uploadOne = async (url: string): Promise<boolean> => {
     }
 
     // Any other 4xx is final for this page.
-    await dequeue(url);
+    await dequeue(id);
     await syncState.update({ lastError, lastRejectionAt: now });
     return true;
   }
@@ -192,9 +203,9 @@ export const processQueue = async (): Promise<void> => {
 
       const due = Object.entries(await getQueue())
         .filter(([, item]) => item.nextAttemptAt <= Date.now())
-        .map(([url]) => url);
-      for (const url of due) {
-        if (!(await uploadOne(url))) break;
+        .map(([id]) => id);
+      for (const id of due) {
+        if (!(await uploadOne(id))) break;
       }
     } while (rerun);
     await scheduleRetry();
@@ -213,7 +224,7 @@ export const finishRun = async (reason: string, newest: Marker | null, sessionSt
   if (!isConfigured(await getSettings())) return;
   const state = await syncState.get();
   if (state.lastRejectionAt && state.lastRejectionAt >= sessionStartedAt) return;
-  if (!state.marker || newest.datePlayed > state.marker.datePlayed) {
+  if (!state.marker || state.marker.profileId !== newest.profileId || newest.datePlayed > state.marker.datePlayed) {
     await syncState.update({ marker: newest });
   }
 };

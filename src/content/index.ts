@@ -1,14 +1,8 @@
-import type { HistoryPage } from "src/storage";
+import { crunchyrollProfile, type HistoryPage } from "src/storage";
 import { newestEntry, type Marker } from "src/sync";
 
-const s = document.createElement("script");
-s.src = chrome.runtime.getURL("src/content/injected.js");
-s.onload = function () {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  this.remove();
-};
-(document.head || document.documentElement).appendChild(s);
+// public/injected.js runs in the page world (registered by the service worker)
+// and posts watch-history responses and the active Crunchyroll profile here.
 
 // Pages captured since this tab loaded start at the newest history page and
 // run contiguously while scrolling, so their newest entry is what a completed
@@ -19,6 +13,11 @@ let sessionNewest: Marker | null = null;
 let lastBodyScrollHeight = 0;
 let isSameHeightTimes = 0;
 let scrollTimer: number | undefined;
+
+// The active Crunchyroll profile, from the token or multiprofile response.
+// Pages captured before it's known wait here, since uploads need it.
+let profileId: string | null = null;
+let waitingForProfile: HistoryPage[] = [];
 
 // Tell an open popup that scrolling started or stopped. Fails harmlessly when
 // no popup is open.
@@ -63,13 +62,51 @@ const startScrolling = () => {
   notifyScrolling(true);
 };
 
+const sendPage = async (page: HistoryPage) => {
+  const newest = newestEntry(page);
+  if (newest && (!sessionNewest || newest.datePlayed > sessionNewest.datePlayed)) {
+    sessionNewest = newest;
+  }
+  const response = await chrome.runtime
+    .sendMessage({ message: "PAGE_CAPTURED", page })
+    .catch(console.error);
+  if (response?.reachedMarker) stopScrolling("marker");
+};
+
+const setProfile = (data: { profileId: string; profileName?: string | null }) => {
+  if (data.profileId !== profileId) {
+    // A different profile's pages don't continue this session's sequence.
+    sessionNewest = null;
+    profileId = data.profileId;
+  }
+  crunchyrollProfile
+    .get()
+    .then((stored) =>
+      crunchyrollProfile.set({
+        profileId: data.profileId,
+        // The token response has no name; keep the one multiprofile gave.
+        profileName: data.profileName ?? (stored?.profileId === data.profileId ? stored.profileName : null),
+      })
+    )
+    .catch(console.error);
+
+  const waiting = waitingForProfile;
+  waitingForProfile = [];
+  for (const page of waiting) sendPage({ ...page, profileId });
+};
+
 window.addEventListener(
   "message",
-  async (event) => {
+  (event) => {
     // We only accept messages from ourselves
-    if (event.source !== window || event.data?.type !== "frunchyroll") {
+    if (event.source !== window) return;
+
+    if (event.data?.type === "frunchyroll-profile" && typeof event.data.profileId === "string") {
+      setProfile(event.data);
       return;
     }
+    if (event.data?.type !== "frunchyroll") return;
+
     let body: HistoryPage["body"];
     try {
       body = JSON.parse(event.data.responseText);
@@ -77,20 +114,20 @@ window.addEventListener(
       console.error("Frunchy: watch-history response is not JSON", err);
       return;
     }
-    const page: HistoryPage = { url: event.data.url, capturedAt: new Date().toISOString(), body };
-
-    const newest = newestEntry(page);
-    if (newest && (!sessionNewest || newest.datePlayed > sessionNewest.datePlayed)) {
-      sessionNewest = newest;
-    }
-
-    const response = await chrome.runtime
-      .sendMessage({ message: "PAGE_CAPTURED", page })
-      .catch(console.error);
-    if (response?.reachedMarker) stopScrolling("marker");
+    const page: HistoryPage = {
+      url: event.data.url,
+      capturedAt: new Date().toISOString(),
+      profileId,
+      body,
+    };
+    if (profileId) sendPage(page);
+    else waitingForProfile.push(page);
   },
   false
 );
+
+// Ask the page-world hook for a profile it saw before this script was listening.
+window.postMessage({ type: "frunchyroll-hello" }, "*");
 
 // Injected on every Crunchyroll page because it's an SPA: the history page is
 // often reached without a full page load, so a /history match would miss it.
