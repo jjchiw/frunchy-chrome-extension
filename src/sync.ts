@@ -83,7 +83,7 @@ const updateQueue = (change: (queue: Queue) => void): Promise<void> =>
     await chrome.storage.local.set({ uploadQueue: queue });
   });
 
-export const queueSize = async () => Object.keys(await getQueue()).length;
+export const queuedPageIds = async () => Object.keys(await getQueue());
 
 export const newestEntry = (page: HistoryPage): Marker | null => {
   let newest: Marker | null = null;

@@ -1,6 +1,6 @@
 {
   "scrap": {
-    "message": "Escanear"
+    "message": "Escanear historial"
   },
   "stop": {
     "message": "Detener"
@@ -30,17 +30,6 @@
   },
   "sync_off": {
     "message": "La sincronización está desactivada. Añade tu clave en Ajustes."
-  },
-  "summary_counts": {
-    "message": "Páginas: $FIRST$ · Entradas: $SECOND$",
-    "placeholders": {
-      "first": {
-        "content": "$1"
-      },
-      "second": {
-        "content": "$2"
-      }
-    }
   },
   "summary_range": {
     "message": "Del $FIRST$ al $SECOND$",
@@ -89,7 +78,7 @@
     }
   },
   "import_completed": {
-    "message": "Última importación: $FIRST$ procesadas, $SECOND$ sin datos del episodio.",
+    "message": "$FIRST$ procesadas · $SECOND$ sin detalles",
     "placeholders": {
       "first": {
         "content": "$1"
@@ -203,5 +192,129 @@
         "content": "$2"
       }
     }
+  },
+  "status_sync_on": {
+    "message": "Sincronización activa"
+  },
+  "status_sync_off": {
+    "message": "Sincronización desactivada"
+  },
+  "status_sync_issue": {
+    "message": "Error de sincronización"
+  },
+  "hero_open_title": {
+    "message": "Abre tu historial"
+  },
+  "hero_open_text": {
+    "message": "Frunchy lee tu historial desde crunchyroll.com/history mientras tienes la sesión de Crunchyroll iniciada."
+  },
+  "open_history": {
+    "message": "Abrir historial de Crunchyroll"
+  },
+  "hero_reload_title": {
+    "message": "Recarga la pestaña del historial"
+  },
+  "hero_reload_text": {
+    "message": "Esta pestaña se abrió antes de instalar o actualizar Frunchy, así que Frunchy aún no la ve."
+  },
+  "reload_tab": {
+    "message": "Recargar pestaña"
+  },
+  "hero_ready_title": {
+    "message": "Escanea tu historial"
+  },
+  "hero_ready_first": {
+    "message": "Frunchy recorre tu historial y guarda cada episodio. Deja la pestaña abierta hasta que termine."
+  },
+  "hero_ready_again": {
+    "message": "$FIRST$ entradas guardadas, la más reciente del $SECOND$. Vuelve a escanear para añadir lo que has visto desde entonces.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      },
+      "second": {
+        "content": "$2"
+      }
+    }
+  },
+  "hero_running_title": {
+    "message": "Escaneando tu historial…"
+  },
+  "hero_running_text": {
+    "message": "$FIRST$ entradas guardadas por ahora. Deja esta pestaña abierta; se detiene sola al llegar al final.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "set_up": {
+    "message": "Configurar"
+  },
+  "recent_title": {
+    "message": "Episodios recientes"
+  },
+  "watched_percent": {
+    "message": "visto al $FIRST$ %",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "entry_synced": {
+    "message": "Sincronizado"
+  },
+  "entry_pending": {
+    "message": "Pendiente"
+  },
+  "entry_stored": {
+    "message": "Guardado"
+  },
+  "clear_confirm": {
+    "message": "Borrar"
+  },
+  "cancel": {
+    "message": "Cancelar"
+  },
+  "more_actions": {
+    "message": "Datos guardados"
+  },
+  "episode_number": {
+    "message": "Ep. $FIRST$",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "duration_minutes": {
+    "message": "$FIRST$ min",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "sync_key_hint": {
+    "message": "La consigues en tu cuenta de Frunchy."
+  },
+  "open_account": {
+    "message": "Abrir tu cuenta de Frunchy"
+  },
+  "open_connect_extension": {
+    "message": "Abrir «Conectar la extensión»"
+  },
+  "use_default_url": {
+    "message": "Usar el predeterminado"
+  },
+  "show_key": {
+    "message": "Mostrar clave"
+  },
+  "anime_dna": {
+    "message": "ADN anime"
+  },
+  "dashboard": {
+    "message": "Dashboard"
   }
 }

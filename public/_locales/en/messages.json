@@ -1,6 +1,6 @@
 {
   "scrap": {
-    "message": "Scrap"
+    "message": "Scrape history"
   },
   "stop": {
     "message": "Stop"
@@ -30,17 +30,6 @@
   },
   "sync_off": {
     "message": "Sync is off. Add your sync key in Settings."
-  },
-  "summary_counts": {
-    "message": "Pages: $FIRST$ · Entries: $SECOND$",
-    "placeholders": {
-      "first": {
-        "content": "$1"
-      },
-      "second": {
-        "content": "$2"
-      }
-    }
   },
   "summary_range": {
     "message": "From $FIRST$ to $SECOND$",
@@ -89,7 +78,7 @@
     }
   },
   "import_completed": {
-    "message": "Last import: $FIRST$ processed, $SECOND$ without episode details.",
+    "message": "$FIRST$ processed · $SECOND$ without episode details",
     "placeholders": {
       "first": {
         "content": "$1"
@@ -203,5 +192,129 @@
         "content": "$2"
       }
     }
+  },
+  "status_sync_on": {
+    "message": "Sync on"
+  },
+  "status_sync_off": {
+    "message": "Sync off"
+  },
+  "status_sync_issue": {
+    "message": "Sync issue"
+  },
+  "hero_open_title": {
+    "message": "Open your history"
+  },
+  "hero_open_text": {
+    "message": "Frunchy reads your watch history from crunchyroll.com/history while you're signed in to Crunchyroll."
+  },
+  "open_history": {
+    "message": "Open Crunchyroll history"
+  },
+  "hero_reload_title": {
+    "message": "Reload the history tab"
+  },
+  "hero_reload_text": {
+    "message": "This tab was opened before Frunchy was installed or updated, so Frunchy can't see it yet."
+  },
+  "reload_tab": {
+    "message": "Reload tab"
+  },
+  "hero_ready_title": {
+    "message": "Scrape your history"
+  },
+  "hero_ready_first": {
+    "message": "Frunchy scrolls through your history and stores every episode. Keep the tab open until it finishes."
+  },
+  "hero_ready_again": {
+    "message": "$FIRST$ entries stored, the newest from $SECOND$. Scrape again to add what you've watched since.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      },
+      "second": {
+        "content": "$2"
+      }
+    }
+  },
+  "hero_running_title": {
+    "message": "Scraping your history…"
+  },
+  "hero_running_text": {
+    "message": "$FIRST$ entries stored so far. Keep this tab open; it stops by itself at the end.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "set_up": {
+    "message": "Set up"
+  },
+  "recent_title": {
+    "message": "Recent episodes"
+  },
+  "watched_percent": {
+    "message": "watched $FIRST$%",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "entry_synced": {
+    "message": "Synced"
+  },
+  "entry_pending": {
+    "message": "Waiting"
+  },
+  "entry_stored": {
+    "message": "Stored"
+  },
+  "clear_confirm": {
+    "message": "Delete"
+  },
+  "cancel": {
+    "message": "Cancel"
+  },
+  "more_actions": {
+    "message": "Stored data"
+  },
+  "episode_number": {
+    "message": "Ep. $FIRST$",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "duration_minutes": {
+    "message": "$FIRST$ min",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "sync_key_hint": {
+    "message": "You get it from your Frunchy account."
+  },
+  "open_account": {
+    "message": "Open your Frunchy account"
+  },
+  "open_connect_extension": {
+    "message": "Open “Connect extension”"
+  },
+  "use_default_url": {
+    "message": "Use default"
+  },
+  "show_key": {
+    "message": "Show key"
+  },
+  "anime_dna": {
+    "message": "Anime DNA"
+  },
+  "dashboard": {
+    "message": "Dashboard"
   }
 }

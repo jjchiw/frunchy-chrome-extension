@@ -2,7 +2,20 @@
 // 8 KB). Each page is its own key so adding one doesn't rewrite the others;
 // `index` holds small per-page stats so the popup never loads page bodies.
 
-export type HistoryEntry = { id?: string; date_played?: string };
+// Only the fields the extension reads; bodies are stored and uploaded verbatim.
+export type HistoryEntry = {
+  id?: string;
+  date_played?: string;
+  playhead?: number;
+  fully_watched?: boolean;
+  panel?: {
+    title?: string;
+    episode_metadata?: { series_title?: string; episode?: string; duration_ms?: number };
+    images?: { thumbnail?: { source: string; width: number }[][] };
+  };
+};
+
+export type RecentEntry = { pageId: string; entry: HistoryEntry };
 
 export type HistoryPage = {
   url: string;
@@ -74,6 +87,25 @@ export const storage = {
       oldest: dates[0] ?? null,
       newest: dates[dates.length - 1] ?? null,
     };
+  },
+
+  // The newest entries of one Crunchyroll profile (all profiles when null),
+  // loading only the pages that hold them.
+  getRecent: async (profileId: string | null, limit: number): Promise<RecentEntry[]> => {
+    const pages = Object.entries(await getIndex())
+      .filter(([id, stats]) => stats.newest && (!profileId || id.startsWith(`${profileId} `)))
+      .sort(([, a], [, b]) => b.newest!.localeCompare(a.newest!));
+    const recent: RecentEntry[] = [];
+    for (const [id, stats] of pages) {
+      // Every remaining page is older than the entries already collected.
+      if (recent.length >= limit && recent[limit - 1].entry.date_played! >= stats.newest!) break;
+      const page = (await chrome.storage.local.get(pageKey(id)))[pageKey(id)] as HistoryPage | undefined;
+      for (const entry of page?.body.data ?? []) {
+        if (entry.date_played) recent.push({ pageId: id, entry });
+      }
+      recent.sort((a, b) => b.entry.date_played!.localeCompare(a.entry.date_played!));
+    }
+    return recent.slice(0, limit);
   },
 
   clear: (): Promise<void> =>

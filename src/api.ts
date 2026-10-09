@@ -1,4 +1,4 @@
-// Client for the Frunchy backend, contract v1:
+// Client for the Frunchy backend, contract v1.4:
 // FrunchyBackend/specs/001-crunchyroll-history-import/contracts/import-api.md
 
 import type { Settings } from "src/settings";
@@ -10,6 +10,17 @@ export type Me = {
   dashboardUrl: string;
   lastSyncAt: string | null;
   historyOwnerBound: boolean;
+};
+
+// Contract v1.3+: website pages the extension may link to, at fixed paths under
+// the backend URL. Signed-out visitors go through sign-in and come back.
+export const webPages = {
+  // Holds "Reset Crunchyroll binding".
+  account: (baseUrl: string) => `${baseUrl}/account`,
+  // "Connect extension": issues a new sync key after confirming (revokes the old one).
+  connectExtension: (baseUrl: string) => `${baseUrl}/account/key`,
+  // v1.4: the public Anime DNA page; `username` comes from GET /api/me.
+  dna: (baseUrl: string, username: string) => `${baseUrl}/u/${encodeURIComponent(username)}/dna`,
 };
 
 // Contract v1.2: profileId is required (the page URL only names the account).
