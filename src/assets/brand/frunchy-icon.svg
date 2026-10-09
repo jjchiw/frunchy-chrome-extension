@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- Extension icon: frunchy-mark.svg on a surface (#0f131c) tile, so it reads on
+       light and dark toolbars. Rendered to src/assets/icons/frunchy{16,32,48,128}.png
+       with rsvg-convert. -->
+  <rect width="48" height="48" rx="10" fill="#0f131c"/>
+  <image href="frunchy-mark.svg" x="4" y="4" width="40" height="40"/>
+</svg>

@@ -5,10 +5,10 @@
   "manifest_version": 3,
   "default_locale": "en",
   "icons": {
-    "16": "src/assets/icons/get_started16.png",
-    "32": "src/assets/icons/get_started32.png",
-    "48": "src/assets/icons/get_started48.png",
-    "128": "src/assets/icons/get_started128.png"
+    "16": "src/assets/icons/frunchy16.png",
+    "32": "src/assets/icons/frunchy32.png",
+    "48": "src/assets/icons/frunchy48.png",
+    "128": "src/assets/icons/frunchy128.png"
   },
   "content_scripts": [
     {
@@ -28,10 +28,10 @@
     "default_popup": "src/popup/popup.html",
     "default_title": "Frunchy",
     "default_icon": {
-      "16": "src/assets/icons/get_started16.png",
-      "32": "src/assets/icons/get_started32.png",
-      "48": "src/assets/icons/get_started48.png",
-      "128": "src/assets/icons/get_started128.png"
+      "16": "src/assets/icons/frunchy16.png",
+      "32": "src/assets/icons/frunchy32.png",
+      "48": "src/assets/icons/frunchy48.png",
+      "128": "src/assets/icons/frunchy128.png"
     }
   },
   "permissions": ["activeTab", "alarms", "storage", "unlimitedStorage", "tabs", "scripting"],
