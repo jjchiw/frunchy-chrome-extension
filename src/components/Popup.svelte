@@ -377,14 +377,14 @@
           </p>
         {/if}
         {#if lastImport?.status === "completed" && lastImport.counts}
-          <p class="meta-row">
+          <p class="meta-row meta-done">
             <Icon name="check_circle" size={16} />
             <span>{t("import_completed", lastImport.counts.processed, lastImport.counts.unresolved)}</span>
           </p>
         {:else if lastImport?.status === "failed"}
           <p class="meta-row meta-warning"><Icon name="error" size={16} /><span>{t("import_failed")}</span></p>
         {:else if lastImport}
-          <p class="meta-row">
+          <p class="meta-row meta-pending">
             <Icon name="sync" size={16} /><span>{t("import_in_progress", lastImport.entriesReceived)}</span>
           </p>
         {/if}
@@ -736,6 +736,10 @@
 
   .meta-pending {
     color: var(--color-tertiary);
+  }
+
+  .meta-done {
+    color: var(--color-primary);
   }
 
   .link {

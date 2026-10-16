@@ -13,7 +13,7 @@ Mode: Operate. Audience: Crunchyroll viewers syncing to Frunchy (owner now, invi
 
 THESIS: The popup is a capture console: one hero card whose single action follows the real state (open history → scrape → stop), with the evidence of what was captured right under it. It refuses the generic extension-popup stack of equal gray buttons.
 
-OWN-WORLD: Night Broadcast tokens: deep plum #13111a canvas, solid surface-container cards at radius-lg with no border or shadow, amber #ffb547 for the one live action and live state, lilac #c9bcff for tags and waiting, rose #ff6fa8 for a failed import, coral #ff9b85 for errors, Figtree with Bricolage Grotesque headings, Material Symbols as SVG, tabular numerals.
+OWN-WORLD: Night Broadcast tokens: violet-black #13111a canvas, solid surface-container cards at radius-lg with no border or shadow, amber #ffb547 for the one live action and live state, lilac #c9bcff for tags and waiting, rose #ff6fa8 for a failed import, coral #ff9b85 for errors, Figtree with Bricolage Grotesque headings, Material Symbols as SVG, tabular numerals.
 
 STORY: The user sees whether this tab can be scraped, presses the one amber button, watches entries count up live, and sees their newest episodes appear with a stored/pending/synced state, then follows the dashboard link.
 

@@ -28,7 +28,8 @@ looks like, so implementation and review check against the same list. A tint wri
 | Meta rows (`.meta-row`) | `on-surface-variant` | | | label-md, numbers tabular |
 | Sync error (`.meta-error` for `lastError`) | `error` | | | |
 | Failed import (`lastImport.status === "failed"`) | `secondary` (rose, a warning) | | | |
-| Pending uploads (`.meta-pending`) | `tertiary` | | | |
+| Pending uploads, import in progress (`.meta-pending`) | `tertiary` (neutral attention, like the website's "processing") | | | |
+| Import completed (`.meta-done`) | `primary` (done, like the website's "completed") | | | |
 | Inline links (`.link`) | `primary`, underlined | | | label-md weight |
 | "Recent episodes" (`h2.section-title`) | `on-surface-variant` | | sentence case, no uppercase, no letter spacing | display, label-md size and line, 700 |
 | Date range (`.section-note`) | `outline` | | | label-sm size and line, tabular |
