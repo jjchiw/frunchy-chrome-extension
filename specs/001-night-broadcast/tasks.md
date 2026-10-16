@@ -103,40 +103,40 @@ All tasks in this phase edit `src/components/Popup.svelte` (styles, plus the few
 named below), so run them in order. Don't change any script logic, `t(...)` key, ARIA attribute or
 live region.
 
-- [ ] T008 [US2] Header in `src/components/Popup.svelte`:
+- [X] T008 [US2] Header in `src/components/Popup.svelte`:
   - Remove the `.mark` tile (background, border and radius). Show the mark at 32×32 (`width`/`height` 32 on the `<img>`).
   - `.wordmark`: `font-family: var(--font-display)` (inherited from `h1`), `font-weight: 800`, `letter-spacing: -0.025em`, size `--text-headline-md-size`. Keep a 24px line height unless the measurement needs it changed.
-- [ ] T009 [US2] Icon buttons in `src/components/Popup.svelte`: `.icon-button` gets `border-radius: var(--radius-full)`, and its hover background is `var(--color-surface-container)`.
-- [ ] T010 [US2] Main card in `src/components/Popup.svelte`:
+- [X] T009 [US2] Icon buttons in `src/components/Popup.svelte`: `.icon-button` gets `border-radius: var(--radius-full)`, and its hover background is `var(--color-surface-container)`.
+- [X] T010 [US2] Main card in `src/components/Popup.svelte`:
   - `.hero` gets a solid `background: var(--color-surface-container-low)` and `border-radius: var(--radius-lg)`, with no `border`, `border-top-color` or `box-shadow`.
   - Replace the gradient sweep (research R5):
     - `.hero.running` shows a static 2px solid `var(--color-primary)` line across its top edge, for example `box-shadow: inset 0 2px 0 var(--color-primary)`. It's clipped by the radius and `overflow: hidden`.
     - `.hero.running::before` becomes a solid `var(--color-primary-fixed)` segment, 2px tall and about 30% wide, sweeping from `translateX(-100%)` to `translateX(calc(100% / 0.3))` or similar so it crosses the whole card. Keep the existing `scan` timing and easing.
     - Add `@media (prefers-reduced-motion: reduce) { .hero.running::before { display: none; } }`.
-- [ ] T011 [US2] Card contents in `src/components/Popup.svelte`:
+- [X] T011 [US2] Card contents in `src/components/Popup.svelte`:
   - `.profile` becomes a lilac tag: `color: var(--color-tertiary)`, `background: rgb(from var(--color-tertiary) r g b / 0.14)`, `border: 1px solid rgb(from var(--color-tertiary) r g b / 0.25)`, full radius.
   - `.hero-title` uses `font-weight: var(--text-headline-md-weight)`.
-- [ ] T012 [US2] Main button in `src/components/Popup.svelte`:
+- [X] T012 [US2] Main button in `src/components/Popup.svelte`:
   - `.action` gets `border-radius: var(--radius-full)`.
   - `.action-stop`: background `rgb(from var(--color-primary) r g b / 0.08)` and `box-shadow: inset 0 0 0 1px rgb(from var(--color-primary) r g b / 0.5)`. On hover, the background becomes `rgb(from var(--color-primary) r g b / 0.14)` and the inset ring stays.
-- [ ] T013 [US2] Meta rows in `src/components/Popup.svelte`:
+- [X] T013 [US2] Meta rows in `src/components/Popup.svelte`:
   - `.meta-pending` becomes `color: var(--color-tertiary)`.
   - Give the failed-import row (`lastImport?.status === "failed"`) a new class `meta-warning` instead of `meta-error`, styled `color: var(--color-secondary)`.
   - The `lastError` row keeps `meta-error` (coral).
-- [ ] T014 [US2] Recent episodes in `src/components/Popup.svelte`:
+- [X] T014 [US2] Recent episodes in `src/components/Popup.svelte`:
   - `.section-title`: remove `text-transform` and `letter-spacing`. Use `font-size: var(--text-label-md-size)`, `line-height: var(--text-label-md-line)` and `font-weight: 700`. Keep the colour `var(--color-on-surface-variant)`. The display font comes from `h2`.
   - `.episode`: `border-radius: var(--radius-lg)`, no `border`, keeping its `surface-container-low` background.
   - `.entry-pending` becomes `color: var(--color-tertiary)`.
-- [ ] T015 [US2] Footer in `src/components/Popup.svelte`:
+- [X] T015 [US2] Footer in `src/components/Popup.svelte`:
   - `.bottom` gets `border-top: 1px solid var(--color-outline-variant)`.
   - `.small-button`: `border-radius: var(--radius-full)`, `background: transparent`, `color: var(--color-on-surface)`, `border: var(--border-ghost)`. On hover, the background is `var(--color-surface-container-high)` and the border is unchanged.
   - `.danger` and `.danger:hover`: `background: var(--color-error)`, `color: var(--color-on-error)`, `border-color: transparent`.
   - Remove the stray blank lines around `.tools`.
-- [ ] T016 [US2] Sweep `src/components/Popup.svelte`:
+- [X] T016 [US2] Sweep `src/components/Popup.svelte`:
   - No `gradient` and no `rgb(` literal may remain, except `rgb(from var(--…) …)` tints and the neutral `rgb(0 0 0 / 0.4)` thumbnail edge.
   - Nothing may use a token that is due for removal: `--border-micro`, `--edge-highlight`, `--shadow-level-2`, `--radius-md`, `--color-error-container`, `--color-on-error-container`, `--text-label-sm-weight` and `--text-label-sm-tracking`.
   - Check every row of the popup table in `contracts/popup-ui.md` against the code.
-- [ ] T017 [US2] Run the harness on both states:
+- [X] T017 [US2] Run the harness on both states:
   - Record the tallest es height. If it's over 600px, reduce spacing inside the main card (for example the `.popup` gap, `.hero` padding or `.wordmark` line height) until it fits, without changing text or removing content, then re-measure.
   - Look at the screenshots: no overlap, the profile pill truncates, and the right fonts render.
   - Run `npm run build` and `npm run check`.

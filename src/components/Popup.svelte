@@ -302,7 +302,7 @@
 <main class="popup">
   <header class="top">
     <div class="brand">
-      <span class="mark"><img src={mark} alt="" width="28" height="28" /></span>
+      <span class="mark"><img src={mark} alt="" width="32" height="32" /></span>
       <div class="brand-text">
         <h1 class="wordmark">Frunchy</h1>
         <p class="sync-status sync-{syncStatus}">
@@ -382,7 +382,7 @@
             <span>{t("import_completed", lastImport.counts.processed, lastImport.counts.unresolved)}</span>
           </p>
         {:else if lastImport?.status === "failed"}
-          <p class="meta-row meta-error"><Icon name="error" size={16} /><span>{t("import_failed")}</span></p>
+          <p class="meta-row meta-warning"><Icon name="error" size={16} /><span>{t("import_failed")}</span></p>
         {:else if lastImport}
           <p class="meta-row">
             <Icon name="sync" size={16} /><span>{t("import_in_progress", lastImport.entriesReceived)}</span>
@@ -527,19 +527,16 @@
   .mark {
     display: grid;
     place-items: center;
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     flex: none;
-    border-radius: var(--radius-default);
-    background: var(--color-surface-container-high);
-    border: var(--border-micro);
   }
 
   .wordmark {
     font-size: var(--text-headline-md-size);
     line-height: 24px;
     font-weight: 800;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
   }
 
   .sync-status {
@@ -573,7 +570,7 @@
     flex: none;
     padding: 0;
     border: none;
-    border-radius: var(--radius-default);
+    border-radius: var(--radius-full);
     background: transparent;
     color: var(--color-on-surface-variant);
     transition:
@@ -583,7 +580,7 @@
 
   .icon-button:hover:not(:disabled) {
     color: var(--color-on-surface);
-    background: var(--color-surface-container-high);
+    background: var(--color-surface-container);
   }
 
   .icon-button:disabled {
@@ -600,28 +597,35 @@
     gap: var(--space-sm);
     padding: 14px var(--space-md);
     border-radius: var(--radius-lg);
-    background:
-      radial-gradient(120% 90% at 100% 0%, rgb(6 182 212 / 0.14), transparent 60%),
-      var(--color-surface-container-low);
-    border: var(--border-micro);
-    border-top-color: var(--edge-highlight);
-    box-shadow: var(--shadow-level-2);
+    background: var(--color-surface-container-low);
   }
 
-  /* While scraping, a scan line sweeps the card's top edge. */
+  /* While scraping, a solid line marks the card's top edge and a lighter segment sweeps along it. */
+  .hero.running {
+    box-shadow: inset 0 2px 0 var(--color-primary);
+  }
+
   .hero.running::before {
     content: "";
     position: absolute;
     inset: 0 0 auto;
+    width: 30%;
     height: 2px;
-    background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+    background: var(--color-primary-fixed);
     transform: translateX(-100%);
     animation: scan 1.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
   }
 
   @keyframes scan {
     to {
-      transform: translateX(100%);
+      transform: translateX(calc(100% / 0.3));
+    }
+  }
+
+  /* Without the sweep, the static line still shows that a scrape is running. */
+  @media (prefers-reduced-motion: reduce) {
+    .hero.running::before {
+      display: none;
     }
   }
 
@@ -641,9 +645,9 @@
     white-space: nowrap;
     padding: 2px 10px;
     border-radius: var(--radius-full);
-    background: rgb(192 193 255 / 0.12);
-    border: 1px solid rgb(192 193 255 / 0.3);
-    color: var(--color-secondary);
+    background: rgb(from var(--color-tertiary) r g b / 0.14);
+    border: 1px solid rgb(from var(--color-tertiary) r g b / 0.25);
+    color: var(--color-tertiary);
     font-size: var(--text-label-md-size);
     line-height: var(--text-label-md-line);
     font-weight: var(--text-label-md-weight);
@@ -652,7 +656,7 @@
   .hero-title {
     font-size: var(--text-headline-md-size);
     line-height: var(--text-headline-md-line);
-    font-weight: 700;
+    font-weight: var(--text-headline-md-weight);
     letter-spacing: var(--text-headline-md-tracking);
     text-wrap: balance;
   }
@@ -671,7 +675,7 @@
     min-height: 48px;
     padding: 0 var(--space-md);
     border: none;
-    border-radius: var(--radius-default);
+    border-radius: var(--radius-full);
     background: var(--color-primary);
     color: var(--color-on-primary);
     font-size: var(--text-body-lg-size);
@@ -693,9 +697,13 @@
 
   .action-stop,
   .action-stop:hover:not(:disabled) {
-    background: rgb(76 215 246 / 0.08);
+    background: rgb(from var(--color-primary) r g b / 0.08);
     color: var(--color-primary);
-    box-shadow: inset 0 0 0 1px rgb(76 215 246 / 0.5);
+    box-shadow: inset 0 0 0 1px rgb(from var(--color-primary) r g b / 0.5);
+  }
+
+  .action-stop:hover:not(:disabled) {
+    background: rgb(from var(--color-primary) r g b / 0.14);
   }
 
   .hero-meta {
@@ -722,8 +730,12 @@
     color: var(--color-error);
   }
 
-  .meta-pending {
+  .meta-warning {
     color: var(--color-secondary);
+  }
+
+  .meta-pending {
+    color: var(--color-tertiary);
   }
 
   .link {
@@ -755,11 +767,9 @@
   }
 
   .section-title {
-    font-size: var(--text-label-sm-size);
-    line-height: var(--text-label-sm-line);
-    font-weight: var(--text-label-sm-weight);
-    letter-spacing: var(--text-label-sm-tracking);
-    text-transform: uppercase;
+    font-size: var(--text-label-md-size);
+    line-height: var(--text-label-md-line);
+    font-weight: 700;
     color: var(--color-on-surface-variant);
   }
 
@@ -776,9 +786,8 @@
     align-items: center;
     gap: 12px;
     padding: 6px;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     background: var(--color-surface-container-low);
-    border: var(--border-micro);
   }
 
   .thumb {
@@ -850,7 +859,7 @@
   }
 
   .entry-pending {
-    color: var(--color-secondary);
+    color: var(--color-tertiary);
   }
 
   .entry-stored {
@@ -879,7 +888,7 @@
     gap: var(--space-sm);
     min-height: 44px;
     padding-top: var(--space-sm);
-    border-top: 1px solid rgb(49 53 62 / 0.6);
+    border-top: 1px solid var(--color-outline-variant);
   }
 
   .web-link {
@@ -902,8 +911,6 @@
     margin-left: auto;
   }
 
-
-
   .confirm-text {
     flex: 1;
     font-size: var(--text-label-md-size);
@@ -917,22 +924,22 @@
     gap: var(--space-xs);
     min-height: 36px;
     padding: 0 12px;
-    border-radius: var(--radius-default);
-    background: rgb(255 255 255 / 0.04);
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--color-on-surface);
     border: var(--border-ghost);
     font-size: var(--text-label-md-size);
     font-weight: 700;
   }
 
   .small-button:hover {
-    border-color: var(--color-primary);
-    background: rgb(6 182 212 / 0.08);
+    background: var(--color-surface-container-high);
   }
 
   .danger,
   .danger:hover {
-    background: var(--color-error-container);
+    background: var(--color-error);
     border-color: transparent;
-    color: var(--color-on-error-container);
+    color: var(--color-on-error);
   }
 </style>
