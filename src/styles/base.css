@@ -1,7 +1,9 @@
 /* Page-level styles shared by the popup and the options page. */
 
-@import "@fontsource-variable/plus-jakarta-sans/wght.css";
-@import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource-variable/figtree/wght.css";
+@import "@fontsource/bricolage-grotesque/700.css";
+@import "@fontsource/bricolage-grotesque/800.css";
+@import "@fontsource/ibm-plex-mono/500.css";
 @import "./tokens.css";
 
 *,
@@ -18,11 +20,18 @@ body {
   font-family: var(--font-family);
   font-size: var(--text-body-md-size);
   line-height: var(--text-body-md-line);
+  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
 }
 
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+}
+
 ::selection {
-  background: rgb(76 215 246 / 0.3);
+  background: rgb(from var(--color-primary) r g b / 0.3);
   color: var(--color-on-surface);
 }
 

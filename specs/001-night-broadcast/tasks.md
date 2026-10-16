@@ -25,10 +25,10 @@ the screenshots can show watch history.
 **Purpose**: Fonts in the bundle, and the three verification tools working against the current
 code.
 
-- [ ] T001 Swap the font dependencies in `package.json` and `package-lock.json`, keeping exact versions like the existing entries:
+- [X] T001 Swap the font dependencies in `package.json` and `package-lock.json`, keeping exact versions like the existing entries:
   - add `@fontsource-variable/figtree@5.3.0`, `@fontsource/bricolage-grotesque@5.3.0` and `@fontsource/ibm-plex-mono@5.3.0` as devDependencies (`npm i -D -E …`);
   - remove `@fontsource-variable/plus-jakarta-sans` and `@fontsource/jetbrains-mono` (`npm uninstall …`), and remove their imports from `src/styles/base.css` in T006, not now. `npm run build` will fail between T001 and T006; that's expected.
-- [ ] T002 [P] Write a parity script outside the repository, `parity.py`, that reproduces the backend's check (research R1):
+- [X] T002 [P] Write a parity script outside the repository, `parity.py`, that reproduces the backend's check (research R1):
   - Parse `Views/Theme.fs` into a map of token names to values:
     - colours: `"name", "#hex"` pairs → `--color-name`;
     - type styles: `"style", ("size", "line", "weight", "tracking")` → `--text-style-size`, `-line`, `-weight` and `-tracking`;
@@ -37,11 +37,11 @@ code.
   - Extract every `(--[a-z0-9-]+)\s*:\s*([^;]+);` from `src/styles/tokens.css`, the whole file including comments, and trim the values.
   - Report names missing from the website, and values that differ, skipping `--font-family`. Exit non-zero on any problem.
   - Run it against the current `tokens.css`. It must report mismatches (the old palette), which proves it works.
-- [ ] T003 [P] Write a contrast script outside the repository, `contrast.py`:
+- [X] T003 [P] Write a contrast script outside the repository, `contrast.py`:
   - Use the WCAG 2.1 relative-luminance formula.
   - Composite `rgb(from var(--color-X) r g b / a)` tints over their real background.
   - Cover every pair in `specs/001-night-broadcast/contracts/popup-ui.md`, read from the final `tokens.css` values. Text must be at least 4.5:1, field borders and focus rings at least 3:1.
-- [ ] T004 [P] Build a popup height harness outside the repository (research R7):
+- [X] T004 [P] Build a popup height harness outside the repository (research R7):
   - A small Vite project whose `root` is the harness directory. It reuses the extension's `src/` alias (`resolve.alias: { src: <repo>/src }`) and `@sveltejs/vite-plugin-svelte`, from the repository's `node_modules`.
   - An entry that installs a `globalThis.chrome` stub before importing `src/components/Popup.svelte`, then mounts it with `mount()`. The stub provides:
     - `i18n.getMessage` and `i18n.getUILanguage`, from the real `public/_locales/<lang>/messages.json` with `$1`-style placeholders;
@@ -73,18 +73,18 @@ None beyond User Story 1. Its tokens and fonts are the base that every other sto
 
 **Independent Test**: `parity.py` reports 0 missing and 0 different, and `npm run build` succeeds.
 
-- [ ] T005 [US1] Rewrite `src/styles/tokens.css` with every value from `specs/001-night-broadcast/data-model.md`:
+- [X] T005 [US1] Rewrite `src/styles/tokens.css` with every value from `specs/001-night-broadcast/data-model.md`:
   - Add `--color-surface-container`, `--color-tertiary`, `--color-on-error`, `--font-display` and `--text-headline-md-weight`.
   - Keep the tokens due for removal (`--color-error-container`, `--color-on-error-container`, `--text-label-sm-weight`, `--text-label-sm-tracking`, `--radius-md`, `--border-micro`, `--edge-highlight`, `--shadow-level-2`), but give them the website's Night Broadcast values from `Theme.fs`. They're removed in T023.
   - `--font-family: "Figtree Variable", system-ui, sans-serif;`
   - Rewrite the header comment to point at `../FrunchyBackend/design/night_broadcast/DESIGN.md` and the contract `specs/010-night-broadcast/contracts/design-system.md`. Keep the "only tokens the extension uses" and parity-check notes. No comment may contain a `--name: value;` pattern.
   - Keep the `/* Keys, usernames and URLs only. */` comment on `--font-mono`.
-- [ ] T006 [US1] Update `src/styles/base.css`:
+- [X] T006 [US1] Update `src/styles/base.css`:
   - Replace the two font imports with `@fontsource-variable/figtree/wght.css`, `@fontsource/bricolage-grotesque/700.css`, `@fontsource/bricolage-grotesque/800.css` and `@fontsource/ibm-plex-mono/500.css`.
   - Add `h1, h2, h3 { font-family: var(--font-display); }`.
   - Add `font-variant-numeric: tabular-nums;` to `html, body`.
   - Change `::selection` to `background: rgb(from var(--color-primary) r g b / 0.3);`.
-- [ ] T007 [US1] Run `parity.py` (0 problems), `npm run build` and `npm run check` (0 errors, 0 warnings). Confirm `dist/` contains the Figtree, Bricolage Grotesque and IBM Plex Mono woff2 files and no Plus Jakarta Sans or JetBrains Mono files.
+- [X] T007 [US1] Run `parity.py` (0 problems), `npm run build` and `npm run check` (0 errors, 0 warnings). Confirm `dist/` contains the Figtree, Bricolage Grotesque and IBM Plex Mono woff2 files and no Plus Jakarta Sans or JetBrains Mono files.
 
 **Checkpoint**: The tokens match the website. The popup already shows the new palette through the
 token names, but still with old shapes and hard-coded tints.

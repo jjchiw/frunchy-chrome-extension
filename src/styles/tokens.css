@@ -1,40 +1,45 @@
-/* Design tokens from ../FrunchyBackend/design/neo_scrobble_profile/DESIGN.md, shared
-   with the web dashboard. Names follow DESIGN.md (`colors.primary` →
-   `--color-primary`, `typography.label-sm` → `--text-label-sm-*`, `rounded.md` →
-   `--radius-md`, `spacing.space-sm` → `--space-sm`) so both sides use the same
-   names. Only tokens the extension uses are listed; the website defines the rest in
-   FrunchyBackend's Views/Theme.fs, so take a new token's name and value from there.
-   FrunchyBackend's DesignSystemTests.fs checks that every token here (except
-   --font-family) exists on the website with the same value. */
+/* Design tokens of the "Night Broadcast" system, from
+   ../FrunchyBackend/design/night_broadcast/DESIGN.md and the contract
+   specs/010-night-broadcast/contracts/design-system.md, shared with the web dashboard.
+   Names follow DESIGN.md (`colors.primary` → `--color-primary`, `typography.label-sm`
+   → `--text-label-sm-*`, `rounded.lg` → `--radius-lg`, `spacing.space-sm` →
+   `--space-sm`) so both sides use the same names. Only tokens the extension uses are
+   listed; the website defines the rest in FrunchyBackend's Views/Theme.fs, so take a
+   new token's name and value from there. FrunchyBackend's DesignSystemTests.fs checks
+   that every token here (except --font-family) exists on the website with the same
+   value. */
 
 :root {
   color-scheme: dark;
 
-  --color-surface: #0f131c;
-  --color-surface-container-low: #181c24;
-  --color-surface-container: #1c2028;
-  --color-surface-container-high: #262a33;
-  --color-surface-container-highest: #31353e;
-  --color-on-surface: #dfe2ee;
-  --color-on-surface-variant: #bcc9cd;
-  --color-outline: #869397;
-  --color-outline-variant: #3d494c;
-  --color-primary: #4cd7f6;
-  --color-on-primary: #003640;
-  --color-primary-fixed: #acedff;
-  --color-secondary: #c0c1ff;
-  --color-tertiary: #ffb0cd;
-  --color-error: #ffb4ab;
-  --color-error-container: #93000a;
-  --color-on-error-container: #ffdad6;
+  --color-surface: #13111a;
+  --color-surface-container-low: #1a1722;
+  --color-surface-container: #1e1a27;
+  --color-surface-container-high: #2a2435;
+  --color-surface-container-highest: #352e42;
+  --color-on-surface: #f1ece4;
+  --color-on-surface-variant: #d2cabe;
+  --color-outline: #9b9286;
+  --color-outline-variant: #4a4255;
+  --color-primary: #ffb547;
+  --color-on-primary: #2a1700;
+  --color-primary-fixed: #ffd08a;
+  --color-secondary: #ff6fa8;
+  --color-tertiary: #c9bcff;
+  --color-error: #ff9b85;
+  --color-on-error: #4a0b00;
+  --color-error-container: #8c1d0e;
+  --color-on-error-container: #ffdad3;
 
-  --font-family: "Plus Jakarta Sans Variable", system-ui, sans-serif;
+  --font-family: "Figtree Variable", system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
   /* Keys, usernames and URLs only. */
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
   --text-headline-md-size: 20px;
   --text-headline-md-line: 28px;
-  --text-headline-md-tracking: -0.01em;
+  --text-headline-md-weight: 700;
+  --text-headline-md-tracking: -0.015em;
   --text-body-lg-size: 16px;
   --text-body-md-size: 14px;
   --text-body-md-line: 20px;
@@ -47,10 +52,10 @@
   --text-label-sm-weight: 700;
   --text-label-sm-tracking: 0.06em;
 
-  --radius-sm: 0.25rem;
-  --radius-default: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
+  --radius-sm: 0.375rem;
+  --radius-default: 0.75rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.25rem;
   --radius-full: 9999px;
 
   --space-xs: 0.25rem;
@@ -59,9 +64,9 @@
   --space-lg: 1.5rem;
 
   /* DESIGN.md "Elevation & Depth". */
-  --border-micro: 1px solid rgb(255 255 255 / 0.06);
-  --border-ghost: 1px solid rgb(255 255 255 / 0.12);
-  --edge-highlight: rgb(76 215 246 / 0.35);
+  --border-micro: 1px solid rgb(241 236 228 / 0.06);
+  --border-ghost: 1px solid rgb(241 236 228 / 0.14);
+  --edge-highlight: rgb(255 181 71 / 0.35);
   --shadow-level-2: 0 12px 32px -8px rgb(0 0 0 / 0.6);
-  --glow-primary: 0 4px 20px -4px rgb(6 182 212 / 0.45);
+  --glow-primary: 0 4px 20px -4px rgb(255 181 71 / 0.45);
 }
