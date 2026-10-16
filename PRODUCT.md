@@ -39,7 +39,7 @@ Frunchy is a Last.fm-style home for anime watch history, independent of Crunchyr
 ## Brand Commitments
 
 - Name: Frunchy.
-- Visual system: `../FrunchyBackend/design/neo_scrobble_profile/DESIGN.md` is binding and shared with the web dashboard, so the popup and site read as one product. Design token names are kept identical across both.
+- Visual system: Night Broadcast, `../FrunchyBackend/design/night_broadcast/DESIGN.md`, is binding and shared with the web dashboard, so the popup and site read as one product. Design token names are kept identical across both.
 
 ## Evidence on Hand
 

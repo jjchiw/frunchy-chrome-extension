@@ -181,15 +181,15 @@ amber and rose bars on a `#13111a` tile.
 
 ## Phase 7: Polish and cross-cutting
 
-- [ ] T023 Remove the tokens nothing uses any more from `src/styles/tokens.css`: `--color-error-container`, `--color-on-error-container`, `--text-label-sm-weight`, `--text-label-sm-tracking`, `--radius-md`, `--border-micro`, `--edge-highlight` and `--shadow-level-2`. First grep `src/` to confirm each one has no use. Then confirm that every remaining token is used at least once in `src/`, and run `parity.py` again (0 problems).
-- [ ] T024 [P] Update `CLAUDE.md`:
+- [X] T023 Remove the tokens nothing uses any more from `src/styles/tokens.css`: `--color-error-container`, `--color-on-error-container`, `--text-label-sm-weight`, `--text-label-sm-tracking`, `--radius-md`, `--border-micro`, `--edge-highlight` and `--shadow-level-2`. First grep `src/` to confirm each one has no use. Then confirm that every remaining token is used at least once in `src/`, and run `parity.py` again (0 problems).
+- [X] T024 [P] Update `CLAUDE.md`:
   - **Design paragraph**: Night Broadcast; the roles (amber is the user and the primary action, lilac is tags and neutral attention such as the profile pill and waiting, rose is warnings such as a failed import, coral is errors); solid fills only; buttons and pills fully rounded; cards `radius-lg` with no border.
   - **UI paragraph**: replace "measures 598px" with the height measured in T017.
   - **Fonts bullet**: Figtree (`@fontsource-variable/figtree`), Bricolage Grotesque for headings and the wordmark (`@fontsource/bricolage-grotesque` static 700 and 800, because `--font-display` must name exactly `"Bricolage Grotesque"`), and IBM Plex Mono 500 (`@fontsource/ibm-plex-mono`).
   - **Icons bullet**: the tile is `#13111a`.
   - Keep the file's style: plain sentences, no marketing.
-- [ ] T025 [P] Update `PRODUCT.md`, which mentions the design system or mark, and `.impeccable/surfaces/src-components-popup-svelte.md` to name Night Broadcast, the colour roles and the new fonts in place of Neo-Scrobble, Plus Jakarta Sans, JetBrains Mono and cyan. Only edit lines that are now wrong.
-- [ ] T026 Final validation, following `specs/001-night-broadcast/quickstart.md` §1–§6:
+- [X] T025 [P] Update `PRODUCT.md`, which mentions the design system or mark, and `.impeccable/surfaces/src-components-popup-svelte.md` to name Night Broadcast, the colour roles and the new fonts in place of Neo-Scrobble, Plus Jakarta Sans, JetBrains Mono and cyan. Only edit lines that are now wrong.
+- [X] T026 Final validation, following `specs/001-night-broadcast/quickstart.md` §1–§6:
   - build, check, the worker loader and the `dist` size (under 1 MB);
   - `parity.py`;
   - the old-system grep, which must print nothing;
