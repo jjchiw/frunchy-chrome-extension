@@ -151,11 +151,11 @@ live region.
 
 **Independent Test**: Run `npm run check`. Add a second entry to the T004 harness that mounts `src/components/Settings.svelte` with the same `chrome` stub. A settings fixture holds a backend URL and key; `fetch` can reject. Screenshot it: the inputs, buttons and title match the contract. No height limit applies.
 
-- [ ] T018 [P] [US3] Inputs in `src/components/Settings.svelte`:
+- [X] T018 [P] [US3] Inputs in `src/components/Settings.svelte`:
   - Resting `border: 1px solid var(--color-outline)` (was `outline-variant`) and `background: var(--color-surface-container)`.
   - Keep `border-radius: var(--radius-default)`, the `primary` focus border and 1px `primary` ring, the `outline` placeholder and the mono font.
   - The hover rule that set the border to `outline` is now redundant. Change it to `var(--color-on-surface-variant)` so hover stays visible, as listed in `contracts/popup-ui.md`.
-- [ ] T019 [US3] Buttons and title in `src/components/Settings.svelte`:
+- [X] T019 [US3] Buttons and title in `src/components/Settings.svelte`:
   - The primary (save) button and `.reveal` get `border-radius: var(--radius-full)`.
   - The title uses `font-weight: var(--text-headline-md-weight)` and the display font (from `h1`).
   - Check that no `gradient`, old `rgb(` literal or token due for removal is used, and that every row of the options table in `contracts/popup-ui.md` matches.
