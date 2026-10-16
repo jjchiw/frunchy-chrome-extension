@@ -53,7 +53,7 @@ looks like, so implementation and review check against the same list. A tint wri
 |---|---|---|---|---|
 | Title (`h1`) | `on-surface` | | | display, headline-md tokens |
 | Field label (`.label`) | `on-surface-variant` | | | label-md |
-| Input | `on-surface`; placeholder `outline`; caret `primary` | `surface-container` | 1px `outline`, `radius-default`; focus: `primary` border plus 1px `primary` ring (2px amber in total) | URL and key: mono |
+| Input | `on-surface`; placeholder `outline`; caret `primary` | `surface-container` | 1px `outline` (hover `on-surface-variant`), `radius-default`; focus: `primary` border plus 1px `primary` ring (2px amber in total) | URL and key: mono |
 | Show/hide key (`.reveal`) | `on-surface-variant`; pressed `primary`; hover `on-surface` | hover `surface-container-high` | full radius | |
 | Hint (`.hint`) | `on-surface-variant` | | | label-md |
 | Text buttons (`.link`: "Use default", "Connect extension") | `primary`; hover `primary-fixed` | | | label-md |
