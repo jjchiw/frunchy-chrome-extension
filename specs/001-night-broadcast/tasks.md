@@ -171,9 +171,9 @@ live region.
 **Independent Test**: `cmp` against the backend mark returns 0, and the PNGs show amber, darker
 amber and rose bars on a `#13111a` tile.
 
-- [ ] T020 [P] [US4] Copy `design/brand/frunchy-mark.svg` from the backend worktree unchanged over `src/assets/brand/frunchy-mark.svg`, then run `cmp`.
-- [ ] T021 [US4] In `src/assets/brand/frunchy-icon.svg`, change the tile `fill` to `#13111a` and its comment's `surface (#0f131c)` to `surface (#13111a)`.
-- [ ] T022 [US4] Re-render `src/assets/icons/frunchy16.png`, `frunchy32.png`, `frunchy48.png` and `frunchy128.png`. From `src/assets/brand/`, run `rsvg-convert -w N -h N frunchy-icon.svg -o ../icons/frunchyN.png` for each size. Open the 128 and 16 px PNGs and check the colours.
+- [X] T020 [P] [US4] Copy `design/brand/frunchy-mark.svg` from the backend worktree unchanged over `src/assets/brand/frunchy-mark.svg`, then run `cmp`.
+- [X] T021 [US4] In `src/assets/brand/frunchy-icon.svg`, change the tile `fill` to `#13111a` and its comment's `surface (#0f131c)` to `surface (#13111a)`.
+- [X] T022 [US4] Re-render `src/assets/icons/frunchy16.png`, `frunchy32.png`, `frunchy48.png` and `frunchy128.png`. From `src/assets/brand/`, run `rsvg-convert -w N -h N frunchy-icon.svg -o ../icons/frunchyN.png` for each size. Open the 128 and 16 px PNGs and check the colours.
 
 **Checkpoint**: All four stories are done.
 
