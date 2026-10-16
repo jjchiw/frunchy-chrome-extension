@@ -29,6 +29,8 @@
   --color-on-error-container: #ffdad6;
 
   --font-family: "Plus Jakarta Sans Variable", system-ui, sans-serif;
+  /* Keys, usernames and URLs only. */
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --text-headline-md-size: 20px;
   --text-headline-md-line: 28px;

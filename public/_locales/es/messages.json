@@ -20,14 +20,6 @@
   "open_dashboard": {
     "message": "Abrir Dashboard Web"
   },
-  "signed_in_as": {
-    "message": "Hola, $FIRST$",
-    "placeholders": {
-      "first": {
-        "content": "$1"
-      }
-    }
-  },
   "sync_off": {
     "message": "La sincronización está desactivada. Añade tu clave en Ajustes."
   },
@@ -140,7 +132,7 @@
     }
   },
   "err_unauthorized": {
-    "message": "Tu clave de sincronización no es válida o fue revocada. Revísala en Ajustes."
+    "message": "Tu clave de sincronización no es válida o fue revocada."
   },
   "err_invalid_submission": {
     "message": "El servidor no pudo leer una página del historial."
@@ -212,7 +204,7 @@
     "message": "Abrir historial de Crunchyroll"
   },
   "hero_reload_title": {
-    "message": "Recarga la pestaña del historial"
+    "message": "Recarga la pestaña"
   },
   "hero_reload_text": {
     "message": "Esta pestaña se abrió antes de instalar o actualizar Frunchy, así que Frunchy aún no la ve."
@@ -227,7 +219,7 @@
     "message": "Frunchy recorre tu historial y guarda cada episodio. Deja la pestaña abierta hasta que termine."
   },
   "hero_ready_again": {
-    "message": "$FIRST$ entradas guardadas, la más reciente del $SECOND$. Vuelve a escanear para añadir lo que has visto desde entonces.",
+    "message": "$FIRST$ entradas guardadas, la más reciente del $SECOND$. Vuelve a escanear para añadir lo nuevo.",
     "placeholders": {
       "first": {
         "content": "$1"
@@ -300,7 +292,7 @@
     "message": "La consigues en tu cuenta de Frunchy."
   },
   "open_account": {
-    "message": "Abrir tu cuenta de Frunchy"
+    "message": "Abrir tu cuenta"
   },
   "open_connect_extension": {
     "message": "Abrir «Conectar la extensión»"
@@ -316,5 +308,35 @@
   },
   "dashboard": {
     "message": "Dashboard"
+  },
+  "open_settings": {
+    "message": "Abrir Ajustes"
+  },
+  "scrape_progress": {
+    "message": "$FIRST$ entradas guardadas",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "scrape_finished": {
+    "message": "Escaneo terminado: $FIRST$ entradas guardadas.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "import_finished": {
+    "message": "Importación terminada: $FIRST$ procesadas, $SECOND$ sin detalles del episodio.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      },
+      "second": {
+        "content": "$2"
+      }
+    }
   }
 }

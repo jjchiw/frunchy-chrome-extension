@@ -39,6 +39,46 @@
   let clearButton = $state<HTMLButtonElement>();
   let cancelButton = $state<HTMLButtonElement>();
 
+  // Screen-reader announcements for changes that happen while the popup is open
+  // (the hero title is live too). Only changes are announced, not the state on open.
+  const ANNOUNCE_EVERY = 500;
+  let announcement = $state("");
+  let announcedEntries = 0;
+  let wasScrolling = false;
+  let seenError: string | null | undefined;
+  let seenImport: string | null | undefined;
+
+  $effect(() => {
+    if (scrolling && !wasScrolling) {
+      announcedEntries = summary.entries;
+    } else if (scrolling && summary.entries - announcedEntries >= ANNOUNCE_EVERY) {
+      announcedEntries = summary.entries;
+      announcement = t("scrape_progress", summary.entries.toLocaleString());
+    } else if (!scrolling && wasScrolling) {
+      announcement = t("scrape_finished", summary.entries.toLocaleString());
+    }
+    wasScrolling = scrolling;
+  });
+
+  $effect(() => {
+    if (!sync) return;
+    const error = sync.lastError?.code ?? null;
+    const lastImport = sync.lastImport;
+    const finished =
+      lastImport && (lastImport.status === "completed" || lastImport.status === "failed")
+        ? `${lastImport.importId} ${lastImport.status}`
+        : null;
+    if (seenError !== undefined && error && error !== seenError) announcement = errorText(error);
+    if (seenImport !== undefined && finished && finished !== seenImport) {
+      announcement =
+        lastImport!.status === "completed" && lastImport!.counts
+          ? t("import_finished", lastImport!.counts.processed, lastImport!.counts.unresolved)
+          : t("import_failed");
+    }
+    seenError = error;
+    seenImport = finished;
+  });
+
   const configured = $derived(settings !== null && isConfigured(settings));
   const syncStatus = $derived(!configured ? "off" : sync?.lastError ? "issue" : "on");
   const lastSyncAt = $derived(me?.lastSyncAt ?? sync?.lastImport?.acceptedAt ?? null);
@@ -270,12 +310,6 @@
         </p>
       </div>
     </div>
-    {#if me}
-      <span class="user" title={t("signed_in_as", me.displayName)}>
-        <Icon name="person" size={16} />
-        <span class="user-name">{me.displayName}</span>
-      </span>
-    {/if}
     <button class="icon-button" onclick={openSettings} aria-label={t("settings")} title={t("settings")}>
       <Icon name="tune" />
     </button>
@@ -307,45 +341,52 @@
       </button>
     {/if}
 
+    <!-- An error is shown above the sync lines, never instead of them: pages can still be waiting. -->
     <div class="hero-meta">
       {#if !configured}
-        <Icon name="cloud_off" size={16} />
-        <span>{t("sync_off")}</span>
-        <button class="link" onclick={openSettings}>{t("set_up")}</button>
-      {:else if sync?.lastError}
-        <!-- The unauthorized text already says to check the key in Settings. -->
-        {#if sync.lastError.code === "unauthorized"}
-          <button class="link meta-error" onclick={openSettings}>
-            <Icon name="error" size={16} />{errorText(sync.lastError.code)}
-          </button>
-        {:else}
-          <span class="meta-error"><Icon name="error" size={16} />{errorText(sync.lastError.code)}</span>
-          <!-- The binding is reset from the account page. -->
-          {#if settings && (sync.lastError.code === "history_owner_mismatch" || sync.lastError.code === "history_owner_taken")}
-            <a class="link" href={webPages.account(settings.baseUrl)} target="_blank" rel="noreferrer">
-              {t("open_account")}
-            </a>
-          {/if}
-        {/if}
+        <p class="meta-row">
+          <Icon name="cloud_off" size={16} />
+          <span>{t("sync_off")} <button class="link" onclick={openSettings}>{t("set_up")}</button></span>
+        </p>
       {:else}
+        {@const error = sync?.lastError}
         {@const lastImport = sync?.lastImport}
-        <Icon name="schedule" size={16} />
-        <span>{lastSyncAt ? t("last_sync", formatRelative(lastSyncAt)) : t("never_synced")}</span>
+        {#if error}
+          <p class="meta-row meta-error">
+            <Icon name="error" size={16} />
+            <span>
+              {errorText(error.code)}
+              {#if error.code === "unauthorized"}
+                <button class="link" onclick={openSettings}>{t("open_settings")}</button>
+              {:else if settings && (error.code === "history_owner_mismatch" || error.code === "history_owner_taken")}
+                <!-- The binding is reset from the account page. -->
+                <a class="link" href={webPages.account(settings.baseUrl)} target="_blank" rel="noreferrer">
+                  {t("open_account")}
+                </a>
+              {/if}
+            </span>
+          </p>
+        {/if}
+        <p class="meta-row">
+          <Icon name="schedule" size={16} />
+          <span>{lastSyncAt ? t("last_sync", formatRelative(lastSyncAt)) : t("never_synced")}</span>
+        </p>
         {#if queued.length > 0}
-          <span class="meta-pending"><Icon name="cloud_upload" size={16} />{t("pending_uploads", queued.length)}</span>
+          <p class="meta-row meta-pending">
+            <Icon name="cloud_upload" size={16} /><span>{t("pending_uploads", queued.length)}</span>
+          </p>
         {/if}
         {#if lastImport?.status === "completed" && lastImport.counts}
-          <span class="meta-line"
-            ><Icon name="check_circle" size={16} />{t(
-              "import_completed",
-              lastImport.counts.processed,
-              lastImport.counts.unresolved
-            )}</span
-          >
+          <p class="meta-row">
+            <Icon name="check_circle" size={16} />
+            <span>{t("import_completed", lastImport.counts.processed, lastImport.counts.unresolved)}</span>
+          </p>
         {:else if lastImport?.status === "failed"}
-          <span class="meta-line meta-error"><Icon name="error" size={16} />{t("import_failed")}</span>
+          <p class="meta-row meta-error"><Icon name="error" size={16} /><span>{t("import_failed")}</span></p>
         {:else if lastImport}
-          <span class="meta-line"><Icon name="sync" size={16} />{t("import_in_progress", lastImport.entriesReceived)}</span>
+          <p class="meta-row">
+            <Icon name="sync" size={16} /><span>{t("import_in_progress", lastImport.entriesReceived)}</span>
+          </p>
         {/if}
       {/if}
     </div>
@@ -365,7 +406,7 @@
           <li class="episode">
             <div class="thumb">
               {#if episode.thumbnail}
-                <img src={episode.thumbnail} alt="" width="72" height="40" loading="lazy" />
+                <img src={episode.thumbnail} alt="" width="64" height="36" loading="lazy" />
               {/if}
               <span class="watched" style:width="{episode.watched}%"></span>
             </div>
@@ -390,54 +431,57 @@
 
   <p class="notice" class:notice-error={notice?.isError} role="status">{notice?.text ?? ""}</p>
 
-  <footer class="bottom">
-    {#if confirmingClear}
-      <p class="confirm-text">{t("confirm_clear", summary.entries.toLocaleString())}</p>
-      <button class="small-button danger" onclick={clear}><Icon name="delete" size={18} />{t("clear_confirm")}</button>
-      <button class="small-button" bind:this={cancelButton} onclick={cancelClear}>{t("cancel")}</button>
-    {:else}
-      {#if me}
-        <!-- Short labels, as in the website's navigation; the full wording is the accessible name. -->
-        <a
-          class="web-link"
-          href={me.dashboardUrl}
-          target="_blank"
-          rel="noreferrer"
-          aria-label={t("open_dashboard")}
-          title={t("open_dashboard")}
-        >
-          {t("dashboard")}<Icon name="open_in_new" size={16} />
-        </a>
-        {#if settings}
-          <a class="web-link" href={webPages.dna(settings.baseUrl, me.username)} target="_blank" rel="noreferrer">
-            {t("anime_dna")}<Icon name="open_in_new" size={16} />
+  {#if me || summary.pages || confirmingClear}
+    <footer class="bottom">
+      {#if confirmingClear}
+        <p class="confirm-text">{t("confirm_clear", summary.entries.toLocaleString())}</p>
+        <button class="small-button danger" onclick={clear}><Icon name="delete" size={18} />{t("clear_confirm")}</button>
+        <button class="small-button" bind:this={cancelButton} onclick={cancelClear}>{t("cancel")}</button>
+      {:else}
+        {#if me}
+          <!-- Short labels, as in the website's navigation; the full wording is the accessible name. -->
+          <a
+            class="web-link"
+            href={me.dashboardUrl}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={t("open_dashboard")}
+            title={t("open_dashboard")}
+          >
+            {t("dashboard")}<Icon name="open_in_new" size={16} />
           </a>
+          {#if settings}
+            <a class="web-link" href={webPages.dna(settings.baseUrl, me.username)} target="_blank" rel="noreferrer">
+              {t("anime_dna")}<Icon name="open_in_new" size={16} />
+            </a>
+          {/if}
+        {/if}
+        <!-- Nothing to sync, export or delete until something is stored. -->
+        {#if summary.pages}
+          <div class="tools" role="group" aria-label={t("more_actions")}>
+            {#if configured}
+              <button class="icon-button" onclick={syncStored} aria-label={t("sync_stored")} title={t("sync_stored")}>
+                <Icon name="sync" />
+              </button>
+            {/if}
+            <button class="icon-button" onclick={download} aria-label={t("download_json")} title={t("download_json")}>
+              <Icon name="download" />
+            </button>
+            <button
+              class="icon-button"
+              bind:this={clearButton}
+              onclick={askClear}
+              aria-label={t("clear")}
+              title={t("clear")}
+            >
+              <Icon name="delete" />
+            </button>
+          </div>
         {/if}
       {/if}
-      <!-- Nothing to sync, export or delete until something is stored. -->
-      {#if summary.pages}
-        <div class="tools" role="group" aria-label={t("more_actions")}>
-          {#if configured}
-            <button class="icon-button" onclick={syncStored} aria-label={t("sync_stored")} title={t("sync_stored")}>
-              <Icon name="sync" />
-            </button>
-          {/if}
-          <button class="icon-button" onclick={download} aria-label={t("download_json")} title={t("download_json")}>
-            <Icon name="download" />
-          </button>
-          <button
-            class="icon-button"
-            bind:this={clearButton}
-            onclick={askClear}
-            aria-label={t("clear")}
-            title={t("clear")}
-          >
-            <Icon name="delete" />
-          </button>
-        </div>
-      {/if}
-    {/if}
-  </footer>
+    </footer>
+  {/if}
+  <p class="visually-hidden" role="status">{announcement}</p>
 </main>
 
 <style>
@@ -446,7 +490,7 @@
     padding: 14px var(--space-md);
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
   }
 
   p,
@@ -511,7 +555,6 @@
 
   .sync-on .dot {
     color: var(--color-primary);
-    box-shadow: 0 0 8px rgb(76 215 246 / 0.6);
   }
 
   .sync-off .dot {
@@ -520,28 +563,6 @@
 
   .sync-issue {
     color: var(--color-error);
-  }
-
-  .user {
-    display: flex;
-    align-items: center;
-    gap: var(--space-xs);
-    min-width: 0;
-    max-width: 130px;
-    padding: var(--space-xs) 10px;
-    border-radius: var(--radius-full);
-    background: var(--color-surface-container);
-    border: var(--border-micro);
-    color: var(--color-on-surface-variant);
-    font-size: var(--text-label-md-size);
-    font-weight: var(--text-label-md-weight);
-  }
-
-  .user-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: var(--color-on-surface);
   }
 
   .icon-button {
@@ -576,7 +597,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: var(--space-sm);
     padding: 14px var(--space-md);
     border-radius: var(--radius-lg);
     background:
@@ -679,38 +700,30 @@
 
   .hero-meta {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    column-gap: 6px;
-    row-gap: var(--space-xs);
+    flex-direction: column;
+    gap: var(--space-xs);
     color: var(--color-on-surface-variant);
     font-size: var(--text-label-md-size);
     line-height: var(--text-label-md-line);
   }
 
-  .meta-error,
-  .meta-pending {
-    display: inline-flex;
-    align-items: center;
+  .meta-row {
+    display: flex;
+    align-items: flex-start;
     gap: 6px;
+  }
+
+  /* Keep the icon on the first line of a wrapped row. */
+  .meta-row > :global(.icon) {
+    margin-top: 1px;
   }
 
   .meta-error {
     color: var(--color-error);
-    text-align: left;
   }
 
   .meta-pending {
     color: var(--color-secondary);
-  }
-
-  /* Pending uploads and the import result each get a row under the last sync. */
-  .meta-pending,
-  .meta-line {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    flex-basis: 100%;
   }
 
   .link {
@@ -721,11 +734,6 @@
     font-weight: var(--text-label-md-weight);
     text-decoration: underline;
     text-underline-offset: 3px;
-  }
-
-  .link.meta-error {
-    color: var(--color-error);
-    font-weight: inherit;
   }
 
   /* Recent episodes */
@@ -776,8 +784,8 @@
   .thumb {
     position: relative;
     flex: none;
-    width: 72px;
-    height: 40px;
+    width: 64px;
+    height: 36px;
     overflow: hidden;
     border-radius: var(--radius-sm);
     background: var(--color-surface-container-high);

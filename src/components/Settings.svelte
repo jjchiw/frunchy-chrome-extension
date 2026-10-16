@@ -166,6 +166,12 @@
     transition: border-color 150ms ease-out;
   }
 
+  /* DESIGN.md: keys and URLs are set in the mono face. */
+  #base-url,
+  #sync-key {
+    font-family: var(--font-mono);
+  }
+
   input::placeholder {
     color: var(--color-outline);
   }

@@ -1,6 +1,7 @@
 /* Page-level styles shared by the popup and the options page. */
 
 @import "@fontsource-variable/plus-jakarta-sans/wght.css";
+@import "@fontsource/jetbrains-mono/400.css";
 @import "./tokens.css";
 
 *,

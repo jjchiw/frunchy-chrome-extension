@@ -45,7 +45,7 @@ Frunchy is a Last.fm-style home for anime watch history, independent of Crunchyr
 
 - Real watch-history samples: `../test-read-json/db/*.json` (Crunchyroll response shape).
 - Mockups: `../FrunchyBackend/design/` (popup, dashboard, Anime DNA). Mockup elements with no data source stay out.
-- No logo asset yet; the manifest still uses the boilerplate icons.
+- Brand mark: `src/assets/brand/frunchy-mark.svg` (copied from `../FrunchyBackend/design/brand/`), used for the popup header and, on a dark tile, the extension icons.
 
 ## Product Principles
 

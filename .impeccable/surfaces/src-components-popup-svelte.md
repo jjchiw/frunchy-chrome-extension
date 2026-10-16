@@ -17,8 +17,8 @@ OWN-WORLD: Neo-Scrobble tokens: deep slate #0f131c canvas, layered surface-conta
 
 STORY: The user sees whether this tab can be scraped, presses the one cyan button, watches entries count up live, and sees their newest episodes appear with a stored/pending/synced state, then follows the dashboard link.
 
-FIRST VIEWPORT: Header (mark, Frunchy, version, sync status dot + text, settings icon). Tab strip (history tab state + profile chip). Hero card (title, state sentence, full-width cyan primary button, meta row: last sync, sync issue). Recent episodes list (16:9 thumbnail with progress bar, series, Ep · duration, status). Totals tile + last-import tile. Footer: dashboard link, secondary icon actions.
+FIRST VIEWPORT: Header (mark on a raised tile, Frunchy, sync status dot + text, settings icon). Hero card (state title with the Crunchyroll profile chip beside it, state sentence, full-width cyan primary button, meta rows: sync error with its link above last sync, waiting uploads, last import). Recent episodes (section label with stored date range, 16:9 thumbnail with progress bar, series, Ep · duration · when, status). Footer, only once something exists: Dashboard and Anime DNA links, Sync stored / Download / Clear icon actions. No version, no tab strip, no stat tiles (owner rules; the tiles repeated the hero).
 
-FORM: Mockup composition, adapted (1 of 1, pinned by the brief; no concept seed).
+FORM: Mockup composition, adapted. The original request pins it ("redesign the popup from ../FrunchyBackend/design/extensi_n_frunchy_popup_sincronizador/"), so no concept roll and no seed key.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

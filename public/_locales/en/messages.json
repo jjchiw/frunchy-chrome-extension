@@ -20,14 +20,6 @@
   "open_dashboard": {
     "message": "Open web dashboard"
   },
-  "signed_in_as": {
-    "message": "Hi, $FIRST$",
-    "placeholders": {
-      "first": {
-        "content": "$1"
-      }
-    }
-  },
   "sync_off": {
     "message": "Sync is off. Add your sync key in Settings."
   },
@@ -140,7 +132,7 @@
     }
   },
   "err_unauthorized": {
-    "message": "Your sync key is wrong or was revoked. Check it in Settings."
+    "message": "Your sync key is wrong or was revoked."
   },
   "err_invalid_submission": {
     "message": "The server couldn't read a history page."
@@ -300,7 +292,7 @@
     "message": "You get it from your Frunchy account."
   },
   "open_account": {
-    "message": "Open your Frunchy account"
+    "message": "Open your account"
   },
   "open_connect_extension": {
     "message": "Open “Connect extension”"
@@ -316,5 +308,35 @@
   },
   "dashboard": {
     "message": "Dashboard"
+  },
+  "open_settings": {
+    "message": "Open Settings"
+  },
+  "scrape_progress": {
+    "message": "$FIRST$ entries stored",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "scrape_finished": {
+    "message": "Scrape finished: $FIRST$ entries stored.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      }
+    }
+  },
+  "import_finished": {
+    "message": "Import finished: $FIRST$ processed, $SECOND$ without episode details.",
+    "placeholders": {
+      "first": {
+        "content": "$1"
+      },
+      "second": {
+        "content": "$2"
+      }
+    }
   }
 }

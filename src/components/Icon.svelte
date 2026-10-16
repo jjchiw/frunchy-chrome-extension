@@ -11,7 +11,6 @@
   import error from "@material-symbols/svg-400/outlined/error.svg?raw";
   import history from "@material-symbols/svg-400/outlined/history.svg?raw";
   import open_in_new from "@material-symbols/svg-400/outlined/open_in_new.svg?raw";
-  import person from "@material-symbols/svg-400/outlined/person.svg?raw";
   import refresh from "@material-symbols/svg-400/outlined/refresh.svg?raw";
   import schedule from "@material-symbols/svg-400/outlined/schedule.svg?raw";
   import stop from "@material-symbols/svg-400/outlined/stop.svg?raw";
@@ -32,7 +31,6 @@
     error,
     history,
     open_in_new,
-    person,
     refresh,
     schedule,
     stop,
