@@ -18,7 +18,7 @@ Right now people open the popup mainly to scrape: start the auto-scroll on the h
 
 ## Positioning
 
-Frunchy is a Last.fm-style home for anime watch history, independent of Crunchyroll. The extension is the bridge: it reads the history the user's own logged-in browser already receives, so nothing about the user's Crunchyroll account (tokens, password) ever leaves the browser.
+Frunchy is a social stats platform for anime, built on your watch history and independent of Crunchyroll. The extension is the bridge: it reads the history the user's own logged-in browser already receives, so nothing about the user's Crunchyroll account (tokens, password) ever leaves the browser.
 
 ## Operating Context
 
