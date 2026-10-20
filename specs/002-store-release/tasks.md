@@ -99,7 +99,7 @@ Development is unchanged.
 
 ## Phase 5: User Story 4 - Store listing and privacy answers (Priority: P3)
 
-- [ ] T016 [US4] Create the generator in `scripts/store-assets/` (research R8):
+- [X] T016 [US4] Create the generator in `scripts/store-assets/` (research R8):
   - Start from the harness at `/Users/jjchiw/.claude/jobs/0e1ec898/tmp/nb-tools/harness/` (`entry.ts`, `vite.config.js`, `index.html`, `run.sh`), but **replace every fixture with invented data**:
     - profile name "Mika";
     - series titles "Example Series", "Another Show", "Third Story" (no real anime titles);
@@ -121,8 +121,8 @@ Development is unchanged.
     - the page sets `data-ready` once `document.fonts.ready` resolves and Svelte has mounted, and the script retries if the PNG is blank, as `run.sh` does;
     - output goes to `store/images/screenshot-<lang>-<n>.png` and `store/images/promo-440x280.png`.
   - Add `"store:assets": "node scripts/store-assets/render.mjs"` to `package.json`.
-- [ ] T017 [US4] Run `npm run store:assets`. Check every PNG's size with `file`: 8 screenshots at 1280×800 and 1 promo at 440×280. Look at each image (open the PNGs): no real names or titles, fonts render, nothing is clipped.
-- [ ] T018 [P] [US4] Write `store/listing.en.md` and `store/listing.es.md`, each with:
+- [X] T017 [US4] Run `npm run store:assets`. Check every PNG's size with `file`: 8 screenshots at 1280×800 and 1 promo at 440×280. Look at each image (open the PNGs): no real names or titles, fonts render, nothing is clipped.
+- [X] T018 [P] [US4] Write `store/listing.en.md` and `store/listing.es.md`, each with:
   - a **name** ("Frunchy");
   - a **short description** of at most 132 characters (state the count);
   - a **long description** of about 120–200 words: what it does (reads your Crunchyroll watch history in your own logged-in browser and syncs it to your Frunchy account, so you get anime stats you can share), what it never touches (your Crunchyroll password and tokens stay in the browser), and how to start (create a Frunchy account, copy the sync key from "Connect extension", paste it into the extension's settings, open your Crunchyroll history and press Scrape);
@@ -130,7 +130,7 @@ Development is unchanged.
   - a **category** suggestion and the **language**.
 
   Use "a social stats platform for anime" (es: "una plataforma social de estadísticas de anime"). Never compare Frunchy with another product, and never use "Last.fm". The Spanish uses "tú" and the shared names from CLAUDE.md ("Dashboard", "ADN anime", "Connect extension"). Plain, factual tone, no marketing superlatives.
-- [ ] T019 [P] [US4] Write `store/privacy-practices.md`, in English, the dashboard's language. Each answer must be copy-pasteable:
+- [X] T019 [P] [US4] Write `store/privacy-practices.md`, in English, the dashboard's language. Each answer must be copy-pasteable:
   - the single purpose;
   - one reason per store-manifest permission (`alarms`, `scripting`, `storage`, `unlimitedStorage`, host `https://www.crunchyroll.com/*`, host `<backend>/*`), matching research R3;
   - remote code: "No, I am not using remote code", with the reason that everything is bundled;
@@ -141,7 +141,7 @@ Development is unchanged.
     - stored locally: history pages, the upload queue, settings including the sync key, and the last seen profile id and name;
     - sent: history pages with the profile id, only to the configured backend, with the sync key as a bearer token;
     - never sent: Crunchyroll tokens or password.
-- [ ] T020 [US4] Write `store/README.md`. It covers:
+- [X] T020 [US4] Write `store/README.md`. It covers:
   - what's in the folder;
   - how to regenerate the images (`npm run store:assets`);
   - how to build the upload (`FRUNCHY_BACKEND_URL=https://<domain> npm run package`);

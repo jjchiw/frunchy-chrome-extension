@@ -8,6 +8,7 @@
         "build": "vite build",
         "build:store": "vite build --mode store",
         "package": "npm run build:store && node scripts/package.mjs",
+        "store:assets": "node scripts/store-assets/render.mjs",
         "check": "svelte-check --tsconfig ./tsconfig.json"
     },
     "devDependencies": {

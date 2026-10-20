@@ -30,3 +30,4 @@ dist-ssr
 # Chrome Web Store build output
 dist-store
 release
+scripts/store-assets/dist
