@@ -1,4 +1,4 @@
-import { getSettings, isConfigured } from "src/settings";
+import { DEFAULT_BASE_URL, FIXED_BACKEND, getSettings, isConfigured, saveSettings, type Settings } from "src/settings";
 import { storage, type HistoryPage } from "src/storage";
 import { enqueue, finishRun, isRetryAlarm, processQueue, reachesMarker, syncState } from "src/sync";
 
@@ -67,7 +67,20 @@ chrome.runtime.onStartup.addListener(() => {
   registerHook().catch(console.error);
   processQueue();
 });
+
+// The store build is fixed to one backend. A backend URL stored by a development
+// install is replaced by it, which counts as a different Frunchy user (as in
+// Settings.svelte), so the import state starts over. The key is kept.
+const adoptFixedBackend = async () => {
+  if (!FIXED_BACKEND) return;
+  // Raw read: getSettings() already forces the fixed baseUrl.
+  const stored = (await chrome.storage.local.get("settings")).settings as Partial<Settings> | undefined;
+  if (!stored?.baseUrl || stored.baseUrl === DEFAULT_BASE_URL) return;
+  await saveSettings({ baseUrl: DEFAULT_BASE_URL, syncKey: stored.syncKey ?? "" });
+  await syncState.update({ marker: null, lastImport: null, lastRejectionAt: null, sent: {} });
+};
+
 chrome.runtime.onInstalled.addListener(() => {
   registerHook().catch(console.error);
-  processQueue();
+  adoptFixedBackend().catch(console.error).finally(processQueue);
 });

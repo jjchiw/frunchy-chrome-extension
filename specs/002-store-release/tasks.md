@@ -46,38 +46,38 @@ Development is unchanged.
 
 **Independent Test**: quickstart §2, and §3 for the options page.
 
-- [ ] T005 [US1] Make `vite.config.ts` mode-aware (research R1):
+- [X] T005 [US1] Make `vite.config.ts` mode-aware (research R1):
   - Export `defineConfig(({ mode }) => { … })`. `const store = mode === "store"`.
   - In store mode, read `process.env.FRUNCHY_BACKEND_URL` and validate it. Throw the exact messages from `contracts/build.md` when it's missing, unparseable or not `https:`. Keep only its `origin`.
   - Build the manifest as a deep copy of the imported `manifest.json`. In store mode, set `host_permissions` to `["https://www.crunchyroll.com/*", `${origin}/*`]` and delete `optional_host_permissions`. Pass it to `crx({ manifest })`.
   - Add `define: { __STORE_BUILD__: JSON.stringify(store), __BACKEND_URL__: JSON.stringify(store ? origin : "http://localhost:5099") }`.
   - Add `build: { outDir: store ? "dist-store" : "dist" }`.
   - Keep the existing `svelte()` and `resolve.alias`, the 4-space indent and the comment style.
-- [ ] T006 [US1] Declare `declare const __STORE_BUILD__: boolean;` and `declare const __BACKEND_URL__: string;` in `src/vite-env.d.ts`, with a one-line comment saying where they come from.
-- [ ] T007 [US1] In `src/settings.ts`:
+- [X] T006 [US1] Declare `declare const __STORE_BUILD__: boolean;` and `declare const __BACKEND_URL__: string;` in `src/vite-env.d.ts`, with a one-line comment saying where they come from.
+- [X] T007 [US1] In `src/settings.ts`:
   - `DEFAULT_BASE_URL = __BACKEND_URL__`.
   - Add `export const FIXED_BACKEND = __STORE_BUILD__;` with a comment: the store build talks only to its own backend.
   - In `getSettings()`, when `FIXED_BACKEND` is set, return the stored values with `baseUrl` forced to `DEFAULT_BASE_URL`, and keep the stored `syncKey`.
-- [ ] T008 [US1] In `src/background/service-worker.ts`, add or extend a `chrome.runtime.onInstalled` listener. When `FIXED_BACKEND` is set:
+- [X] T008 [US1] In `src/background/service-worker.ts`, add or extend a `chrome.runtime.onInstalled` listener. When `FIXED_BACKEND` is set:
   - read the raw stored `settings` straight from `chrome.storage.local`, not through `getSettings()`, which already overrides `baseUrl`;
   - if a stored `baseUrl` exists and differs from `DEFAULT_BASE_URL`, save `{ baseUrl: DEFAULT_BASE_URL, syncKey: stored.syncKey ?? "" }` with `saveSettings`;
   - then `await syncState.update({ marker: null, lastImport: null, lastRejectionAt: null, sent: {} })`, the same reset as `Settings.svelte`.
 
   Read the file first. If there's already an `onInstalled` listener (the hook registration may use one), add to it and keep its existing behaviour.
-- [ ] T009 [US1] In `src/components/Settings.svelte`, when `FIXED_BACKEND` is set:
+- [X] T009 [US1] In `src/components/Settings.svelte`, when `FIXED_BACKEND` is set:
   - don't render the backend URL `.field`, including the label, "Use default" and the input;
   - render, in its place, a `<p class="hint">` with `t("connects_to", new URL(DEFAULT_BASE_URL).host)`;
   - in `saveAndCheck`, skip the `chrome.permissions.request` call and use `DEFAULT_BASE_URL` as the origin.
 
   The dev build's behaviour and markup must stay identical. Keep the existing style and comment density.
-- [ ] T010 [US1] Add `scripts/package.mjs` (research R7):
+- [X] T010 [US1] Add `scripts/package.mjs` (research R7):
   - read `dist-store/manifest.json` and fail if it's missing;
   - walk `dist-store/` and fail with the `contracts/build.md` message if any file contains `localhost`;
   - `mkdirSync("release", { recursive: true })`, delete any existing zip of the same name, then `execFileSync("zip", ["-r", "-X", `../release/frunchy-${version}.zip`, "."], { cwd: "dist-store", stdio: "inherit" })`;
   - print the path and its size in KB.
-- [ ] T011 [US1] In `package.json` scripts, add `"build:store": "vite build --mode store"` and `"package": "npm run build:store && node scripts/package.mjs"`.
-- [ ] T012 [US1] Verify quickstart §2. Show the two failures and their messages, and check that no zip was written for them. Then run the package with `https://frunchy.example/some/path`: check the zip's manifest (`unzip -p release/frunchy-0.1.0.zip manifest.json`), `grep -r localhost dist-store` (empty), and `dist-store/service-worker-loader.js` (it must import `service-worker.ts-*.js`). Run `npm run build` and `npm run check` again to confirm the dev build is unaffected.
-- [ ] T013 [US1] Check the options page in both modes with the harness under `/Users/jjchiw/.claude/jobs/0e1ec898/tmp/nb-tools/harness/`. It already mounts `Settings.svelte` (`run.sh <repo> <state> options`). Its vite config needs `define` values for `__STORE_BUILD__` and `__BACKEND_URL__`; add an env switch in the harness, not in the repository. Take one screenshot of the dev options page and one of the store options page. Keep them outside the repository.
+- [X] T011 [US1] In `package.json` scripts, add `"build:store": "vite build --mode store"` and `"package": "npm run build:store && node scripts/package.mjs"`.
+- [X] T012 [US1] Verify quickstart §2. Show the two failures and their messages, and check that no zip was written for them. Then run the package with `https://frunchy.example/some/path`: check the zip's manifest (`unzip -p release/frunchy-0.1.0.zip manifest.json`), `grep -r localhost dist-store` (empty), and `dist-store/service-worker-loader.js` (it must import `service-worker.ts-*.js`). Run `npm run build` and `npm run check` again to confirm the dev build is unaffected.
+- [X] T013 [US1] Check the options page in both modes with the harness under `/Users/jjchiw/.claude/jobs/0e1ec898/tmp/nb-tools/harness/`. It already mounts `Settings.svelte` (`run.sh <repo> <state> options`). Its vite config needs `define` values for `__STORE_BUILD__` and `__BACKEND_URL__`; add an env switch in the harness, not in the repository. Take one screenshot of the dev options page and one of the store options page. Keep them outside the repository.
 
 **Checkpoint**: Commit. This is the MVP: once the domain exists, `npm run package` produces an uploadable zip.
 
