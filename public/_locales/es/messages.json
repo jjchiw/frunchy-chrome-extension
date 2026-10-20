@@ -338,5 +338,16 @@
         "content": "$2"
       }
     }
+  },
+  "ext_description": {
+    "message": "Sincroniza tu historial de Crunchyroll con Frunchy."
+  },
+  "connects_to": {
+    "message": "Se conecta a $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
   }
 }

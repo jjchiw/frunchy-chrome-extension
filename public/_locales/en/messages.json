@@ -338,5 +338,16 @@
         "content": "$2"
       }
     }
+  },
+  "ext_description": {
+    "message": "Syncs your Crunchyroll watch history to Frunchy."
+  },
+  "connects_to": {
+    "message": "Connects to $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
   }
 }

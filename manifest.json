@@ -1,7 +1,8 @@
 {
   "name": "Frunchy",
-  "description": "Syncs your Crunchyroll watch history to Frunchy.",
+  "description": "__MSG_ext_description__",
   "version": "0.1.0",
+  "minimum_chrome_version": "119",
   "manifest_version": 3,
   "default_locale": "en",
   "icons": {
@@ -34,14 +35,11 @@
       "128": "src/assets/icons/frunchy128.png"
     }
   },
-  "permissions": ["activeTab", "alarms", "storage", "unlimitedStorage", "tabs", "scripting"],
+  "permissions": ["alarms", "scripting", "storage", "unlimitedStorage"],
   "host_permissions": [
     "https://www.crunchyroll.com/*",
     "http://localhost:5099/*",
     "https://localhost:5001/*"
   ],
-  "optional_host_permissions": ["http://*/*", "https://*/*"],
-  "externally_connectable": {
-    "matches": ["https://www.crunchyroll.com/*"]
-  }
+  "optional_host_permissions": ["http://*/*", "https://*/*"]
 }

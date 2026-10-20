@@ -13,7 +13,7 @@ real domain doesn't exist yet.
 
 ## Phase 1: Setup
 
-- [ ] T001 Add `dist-store` and `release` to `.gitignore`.
+- [X] T001 Add `dist-store` and `release` to `.gitignore`.
 
 ---
 
@@ -24,16 +24,16 @@ build's manifest is derived from this one.
 
 **Independent Test**: quickstart §1 and §3 (dev build).
 
-- [ ] T002 [US2] Edit `manifest.json`:
+- [X] T002 [US2] Edit `manifest.json`:
   - `permissions` becomes `["alarms", "scripting", "storage", "unlimitedStorage"]`, dropping `activeTab` and `tabs`.
   - Delete the `externally_connectable` block.
   - Add `"minimum_chrome_version": "119"`.
   - Set `"description": "__MSG_ext_description__"`.
   - Keep the dev `host_permissions` and `optional_host_permissions` as they are.
-- [ ] T003 [P] [US2] Add these keys to `public/_locales/en/messages.json` and `public/_locales/es/messages.json`, following the files' existing format, with a `description` field if the others have one:
+- [X] T003 [P] [US2] Add these keys to `public/_locales/en/messages.json` and `public/_locales/es/messages.json`, following the files' existing format, with a `description` field if the others have one:
   - `ext_description`: en "Syncs your Crunchyroll watch history to Frunchy.", es "Sincroniza tu historial de Crunchyroll con Frunchy."
   - `connects_to`: en "Connects to $HOST$", es "Se conecta a $HOST$", with a `placeholders` entry `host` → `$1`. Use the same placeholder style the existing messages use; check how `t()` in `src/i18n.ts` passes substitutions.
-- [ ] T004 [US2] Run `npm run build` and `npm run check`, then check `dist/manifest.json` as in quickstart §1. Confirm no code uses `chrome.tabs` properties beyond `url`/`id` from `tabs.query` and `status` from `onUpdated`: `grep -rn "chrome\.tabs\|\.title\|favIconUrl\|pendingUrl" src`.
+- [X] T004 [US2] Run `npm run build` and `npm run check`, then check `dist/manifest.json` as in quickstart §1. Confirm no code uses `chrome.tabs` properties beyond `url`/`id` from `tabs.query` and `status` from `onUpdated`: `grep -rn "chrome\.tabs\|\.title\|favIconUrl\|pendingUrl" src`.
 
 **Checkpoint**: Commit.
 
