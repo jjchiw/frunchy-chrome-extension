@@ -26,11 +26,11 @@ Getting started
 3. Paste the key into the extension's settings and press Save and check.
 4. Open your Crunchyroll history and press Scrape history.
 
-Frunchy is not affiliated with, endorsed or sponsored by Crunchyroll.
+Frunchy is not affiliated with Crunchyroll or MyAnimeList.
 
 ## Not-affiliated line
 
-Frunchy is not affiliated with, endorsed or sponsored by Crunchyroll.
+Frunchy is not affiliated with Crunchyroll or MyAnimeList.
 
 ## Category
 

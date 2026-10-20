@@ -26,11 +26,11 @@ Cómo empezar
 3. Pega la clave en los ajustes de la extensión y pulsa Guardar y comprobar.
 4. Abre tu historial de Crunchyroll y pulsa Escanear historial.
 
-Frunchy no está afiliado a Crunchyroll ni cuenta con su respaldo o patrocinio.
+Frunchy no está afiliado a Crunchyroll ni a MyAnimeList.
 
 ## Línea de no afiliación
 
-Frunchy no está afiliado a Crunchyroll ni cuenta con su respaldo o patrocinio.
+Frunchy no está afiliado a Crunchyroll ni a MyAnimeList.
 
 ## Categoría
 

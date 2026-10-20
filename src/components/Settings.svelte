@@ -128,6 +128,8 @@
       {/if}
     </p>
   </div>
+  <!-- Same wording as the website's footer (FrunchyBackend Views/Texts.fs, FooterDisclaimer). -->
+  <p class="hint">{t("disclaimer")}</p>
 </form>
 
 <style>
