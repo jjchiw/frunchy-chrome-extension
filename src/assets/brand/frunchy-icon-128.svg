@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Store icon: frunchy-icon.svg at 2x (a 96 px tile) with 16 px of transparent padding, as the
+       Chrome Web Store image guidelines ask. Rendered to src/assets/icons/frunchy128.png with
+       rsvg-convert. -->
+  <g transform="translate(16 16) scale(2)">
+    <rect width="48" height="48" rx="10" fill="#13111a"/>
+    <image href="frunchy-mark.svg" x="4" y="4" width="40" height="40"/>
+  </g>
+</svg>

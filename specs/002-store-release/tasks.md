@@ -85,13 +85,13 @@ Development is unchanged.
 
 ## Phase 4: User Story 3 - Store icon and localized description (Priority: P2)
 
-- [ ] T014 [P] [US3] Add `src/assets/brand/frunchy-icon-128.svg` (research R6):
+- [X] T014 [P] [US3] Add `src/assets/brand/frunchy-icon-128.svg` (research R6):
   - a 128×128 viewBox, with no background;
   - `<g transform="translate(16 16) scale(2)">` holding the same tile `rect` and the `<image href="frunchy-mark.svg" …/>` as `frunchy-icon.svg`;
   - a comment like the existing one, saying it's the store icon with 16 px of transparent padding.
 
   From `src/assets/brand/`, run `rsvg-convert -w 128 -h 128 frunchy-icon-128.svg -o ../icons/frunchy128.png`. Check the corner pixel alpha is 0 and the tile spans 16–111, with a small script outside the repository. Don't change the 16, 32 or 48 px PNGs.
-- [ ] T015 [US3] Load-check: build, then confirm `dist/manifest.json` `description` is `__MSG_ext_description__` and that `dist/_locales/es/messages.json` has `ext_description`.
+- [X] T015 [US3] Load-check: build, then confirm `dist/manifest.json` `description` is `__MSG_ext_description__` and that `dist/_locales/es/messages.json` has `ext_description`.
 
 **Checkpoint**: Commit.
 
