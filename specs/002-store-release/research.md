@@ -150,7 +150,7 @@ matching tab's four sensitive `tabs.Tab` properties", and most features need no 
   - Tick **Authentication information**: the sync key, a bearer credential.
   - Leave **Web history** unticked: Frunchy reads Crunchyroll's own watch-history API, not the
     browser's history, and `privacy-practices.md` says so.
-  - Leave **User activity** unticked: there's no click, keystroke or network monitoring.
+  - Tick **User activity**: Chrome counts network monitoring as user activity, and the page hook reads Crunchyroll's history and profile responses (on Crunchyroll only). Over-disclosing is safer than a mismatch.
   - Tick all three limited-use certifications.
 - **Alternatives considered**: Screenshots taken by hand in real Chrome: they'd show real
   history and can't be re-rendered.

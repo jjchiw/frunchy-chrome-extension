@@ -55,13 +55,16 @@ Tick these categories:
   the profile id is sent with each upload.
 - **Authentication information**: the sync key, a bearer credential for the Frunchy backend, is
   stored locally and sent to the backend with each request.
+- **User activity**: Chrome's definition includes network monitoring. On `www.crunchyroll.com`
+  only, the page hook reads the responses of Crunchyroll's watch-history and profile requests,
+  and the extension scrolls the history page while the user's scrape runs. There is no click,
+  keystroke or mouse logging, and no monitoring on any other site. It's disclosed so the
+  answers can't read as narrower than what the hook does.
 
 Leave these unticked:
 
 - **Web history**: Frunchy reads Crunchyroll's own watch-history API responses, not the browser's
   history. It doesn't read or collect the list of pages the user has visited.
-- **User activity**: there is no click, keystroke, mouse or network monitoring. The extension only
-  scrolls the history page when the user presses Scrape.
 - Health information, financial and payment information, location, personal communications:
   not collected.
 
