@@ -162,14 +162,14 @@ Development is unchanged.
 
 ## Phase 6: Polish
 
-- [ ] T021 Update `CLAUDE.md`, keeping its style:
+- [X] T021 Update `CLAUDE.md`, keeping its style:
   - **Commands**: add `npm run build:store` (needs `FRUNCHY_BACKEND_URL`, outputs `dist-store/`), `npm run package` (zip in `release/`) and `npm run store:assets`.
   - **Architecture**: a short paragraph on the store build: fixed backend, host permissions, the `__STORE_BUILD__`/`__BACKEND_URL__` constants, and the reset on install.
   - **Icon bullet**: `frunchy128.png` is rendered from `frunchy-icon-128.svg` with 16 px transparent padding for the store.
   - **Conventions**: `store/` holds the listing material; its images use invented data only.
 
   Update the permissions mentioned anywhere in CLAUDE.md if they're listed.
-- [ ] T022 Final validation: quickstart §1, §2, §4 and §5, plus `npm run check` and the CI commands (`npm ci`, `npm run build`, `npm run check`) without `FRUNCHY_BACKEND_URL`. Report every result with numbers.
+- [X] T022 Final validation: quickstart §1, §2, §4 and §5, plus `npm run check` and the CI commands (`npm ci`, `npm run build`, `npm run check`) without `FRUNCHY_BACKEND_URL`. Report every result with numbers.
 
 ---
 
