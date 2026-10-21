@@ -11,7 +11,7 @@ checks every scenario in quickstart §2.
 
 ## Phase 1: Setup
 
-- [ ] T001 Build the harness outside the repository, in `/Users/jjchiw/.claude/jobs/0e1ec898/tmp/paging-harness/`, per research R7:
+- [X] T001 Build the harness outside the repository, in `/Users/jjchiw/.claude/jobs/0e1ec898/tmp/paging-harness/`, per research R7:
   - **Server**: Node `http`, no dependencies. It serves the test page and a fake `watch-history` API with 5 pages of 100 invented entries. Each page has `meta.next_page` in the real format: `/content/v2/acct-1/watch-history?locale=en-US&page=N&page_size=100`, empty on page 5.
     - It requires `Authorization: Bearer TEST-TOKEN-SECRET-123` and returns 401 otherwise.
     - It logs each request (path, time in ms, whether the header was present) to a JSON file.
@@ -34,7 +34,7 @@ checks every scenario in quickstart §2.
 
 US1 and US2 share both files and can't be separated.
 
-- [ ] T002 [US1] In `public/injected.js` (keep its ES5 `var`/function style and comment density), per research R2–R4 and `contracts/page-messages.md`:
+- [X] T002 [US1] In `public/injected.js` (keep its ES5 `var`/function style and comment density), per research R2–R4 and `contracts/page-messages.md`:
   - **Header**: wrap `XHR.setRequestHeader`. For a request whose `_url` contains `watch-history` (case-insensitive) and a header named `authorization` (case-insensitive), save the value on the instance (`this._auth`). On `send`, if it's a `watch-history` request with `_auth`, set the closure variable `historyAuth`. Never post, log or attach it anywhere else.
   - **Cursor**: in the existing `load` handler, after posting a `watch-history` response, parse it and resolve `meta.next_page` against the request URL (`new URL(next, new URL(this._url, location.href))`).
     - Keep it as `nextUrl` only if it has the same origin as the request and a path containing `/watch-history`.
@@ -49,7 +49,7 @@ US1 and US2 share both files and can't be separated.
     - Clear `pagingInFlight` on `loadend`.
     - Make sure a 4xx/5xx response isn't posted as a `frunchyroll` history page. The existing `load` handler posts any `watch-history` response, so skip it when `this.status >= 400`; that also helps the site's own requests.
   - Update the header comment: the hook also pages through the history, and the header never leaves this function.
-- [ ] T003 [US1] In `src/content/index.ts`, per research R5:
+- [X] T003 [US1] In `src/content/index.ts`, per research R5:
   - Add a `mode: "idle" | "paging" | "scrolling"`, a `pagingTimer`, a `pageRequested` flag (true from posting `frunchyroll-next` until the next `frunchyroll` page or `frunchyroll-paging` reply) and a `lastRequestAt`.
   - Rename `stopScrolling` to `stopRun(reason)`. It returns if `mode === "idle"`; otherwise it clears both timers, sets `mode = "idle"`, notifies, and sends `RUN_END` exactly as today.
   - `startRun()` (on `SCROLL_DOWN`): `mode = "paging"`, notify the popup that it's running, and request the next page.
@@ -57,7 +57,7 @@ US1 and US2 share both files and can't be separated.
   - Handle `frunchyroll-paging`: on `end`, `stopRun("end")`; on `unavailable` or `failed`, `console.info` one line with the state and status (never data), set `mode = "scrolling"`, and start the existing scroll loop without a second notify.
   - The scroll loop's end calls `stopRun("end")`. `SCROLL_STOP` calls `stopRun("user")`. `SCROLL_STATUS` answers `scrolling: mode !== "idle"`. The marker path calls `stopRun("marker")`.
   - Keep `sessionNewest`, `sessionStartedAt`, the profile handling and the message names exactly as they are. Update comments to describe paging with a scroll fallback.
-- [ ] T004 [US1] Run `npm run build` and `npm run check`. Run the harness scenarios happy path, marker on 3, stop after 2, and the leak check (quickstart §2). Fix until they all match.
+- [X] T004 [US1] Run `npm run build` and `npm run check`. Run the harness scenarios happy path, marker on 3, stop after 2, and the leak check (quickstart §2). Fix until they all match.
 
 **Checkpoint**: Commit.
 
