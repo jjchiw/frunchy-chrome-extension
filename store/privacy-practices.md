@@ -19,8 +19,9 @@ suspended between events, so an alarm is what wakes it to retry.
 **scripting**
 Registers one content script, `injected.js`, that runs in Crunchyroll's own page context at
 document start. It observes Crunchyroll's watch-history responses and the selected profile's id
-and name. It must be registered with `chrome.scripting.registerContentScripts` because it has to
-run before Crunchyroll's scripts do.
+and name. It also requests the next pages of the user's own watch history from Crunchyroll, using
+the sign-in the page already has, which never leaves the page. It must be registered with
+`chrome.scripting.registerContentScripts` because it has to run before Crunchyroll's scripts do.
 
 **storage**
 Keeps the scraped history pages, the upload queue, the settings (including the sync key) and the
@@ -56,8 +57,10 @@ Tick these categories:
 - **Authentication information**: the sync key, a bearer credential for the Frunchy backend, is
   stored locally and sent to the backend with each request.
 - **User activity**: Chrome's definition includes network monitoring. On `www.crunchyroll.com`
-  only, the page hook reads the responses of Crunchyroll's watch-history and profile requests,
-  and the extension scrolls the history page while the user's scrape runs. There is no click,
+  only, the page hook reads the responses of Crunchyroll's watch-history and profile requests.
+  While the user's scrape runs it also requests the next pages of the user's own watch history
+  from Crunchyroll, using the sign-in the page already has (which never leaves the page), and it
+  scrolls the history page when it can't. There is no click,
   keystroke or mouse logging, and no monitoring on any other site. It's disclosed so the
   answers can't read as narrower than what the hook does.
 
@@ -105,5 +108,6 @@ extension.
 
 - The user's Crunchyroll password.
 - Crunchyroll's sign-in tokens. The page hook reads only the profile id and name from those
-  responses.
+  responses, and the sign-in header of the site's history requests is only used for its own
+  requests to Crunchyroll.
 - Anything to any other server.

@@ -65,7 +65,7 @@ US1 and US2 share both files and can't be separated.
 
 ## Phase 3: User Story 3 - Fallback to scrolling (Priority: P2)
 
-- [ ] T005 [US3] Run the harness scenarios `unsigned`, `fail=500`, `fail=401`, `fail=429`, `slow` and `foreignNext`.
+- [X] T005 [US3] Run the harness scenarios `unsigned`, `fail=500`, `fail=401`, `fail=429`, `slow` and `foreignNext`.
   - Each must scroll on and end `end`.
   - Exactly one failed paged request, with no retry; check the server log.
   - The foreign host is never contacted; check that no request to it appears.
@@ -79,14 +79,14 @@ US1 and US2 share both files and can't be separated.
 
 ## Phase 4: Polish
 
-- [ ] T006 [P] Update CLAUDE.md, keeping its style:
+- [X] T006 [P] Update CLAUDE.md, keeping its style:
   - **Data-flow item 1 (the page hook)**:
     - it also remembers the sign-in header of the site's own `watch-history` requests and each response's `meta.next_page`;
     - on `frunchyroll-next` it requests the next page with an ordinary XHR, so the response goes through the same capture;
     - widen the rule: no token or header ever leaves the page world, and only ids, the profile name and history responses are posted.
   - **Item 2 (the content script)**: a run pages first, one page at a time and at least 1 s apart, and falls back to scrolling when paging is unavailable or fails. Popup message names stay `SCROLL_*`. Point to `specs/004-history-paging/`.
-- [ ] T007 [P] Update `store/privacy-practices.md`'s **scripting** and **User activity** texts. The hook also requests the next pages of the user's own watch history from Crunchyroll, using the sign-in the page already has, which never leaves the page. Keep the "never sent" list true.
-- [ ] T008 Final run: `npm run build`, `npm run check`, the `service-worker-loader` check, and all harness scenarios. Report a table of scenario, pages, end reason, scrolled, minimum gap in ms, failed requests and token count.
+- [X] T007 [P] Update `store/privacy-practices.md`'s **scripting** and **User activity** texts. The hook also requests the next pages of the user's own watch history from Crunchyroll, using the sign-in the page already has, which never leaves the page. Keep the "never sent" list true.
+- [X] T008 Final run: `npm run build`, `npm run check`, the `service-worker-loader` check, and all harness scenarios. Report a table of scenario, pages, end reason, scrolled, minimum gap in ms, failed requests and token count.
 
 ## Dependencies
 
