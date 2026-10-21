@@ -1,7 +1,7 @@
 {
   "name": "Frunchy",
-  "description": "__MSG_ext_description__",
-  "version": "0.1.0",
+  "description": "Frunchy is a browser extension for Crunchyroll.",
+  "version": "0.1.1",
   "minimum_chrome_version": "119",
   "manifest_version": 3,
   "default_locale": "en",
