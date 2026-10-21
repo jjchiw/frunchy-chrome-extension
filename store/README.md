@@ -41,9 +41,65 @@ mentions `localhost`.
 2. Deploy the backend on HTTPS and choose the domain.
 3. Have the backend publish `/privacy`, the privacy policy URL used in `privacy-practices.md`.
 4. Decide how to handle Crunchyroll's terms of service.
-5. Run `package` with the real domain, then upload the zip.
+5. Run `package` with the real domain, then upload the zip by hand (the first upload can't use the API).
 6. Fill the listing from `listing.*.md`, upload the images, and fill Privacy practices from
    `privacy-practices.md`.
 7. Choose **Unlisted** visibility for the first release.
 8. Submit for review.
-9. For every later upload, raise `version` in `manifest.json` and `package.json` first.
+9. For every later upload, raise `version` in `manifest.json` and `package.json` first. GitHub
+   Actions can publish it (next section; do its one-time setup once the first release is out).
+
+## Publishing from GitHub Actions
+
+`.github/workflows/release.yml` builds the zip and sends it to the Chrome Web Store.
+
+### How a release works
+
+1. Raise `version` in `manifest.json` and `package.json` (they must match) and commit.
+2. `git tag v<version>` and push the tag.
+3. The `package` job runs `npm ci`, `npm run check` and `npm run package`, and keeps the zip as a
+   workflow artifact. It has no secrets. It fails if the two versions differ or the tag is not
+   `v<version>`.
+4. The `publish` job downloads the zip, gets the Chrome secrets from Bella Baxter and runs
+   `scripts/publish-chrome.sh`, which uploads the zip and submits it for review.
+
+For a manual run, use **Run workflow** (`workflow_dispatch`). With `publish` off (the default) it
+only builds the zip artifact. To publish from a manual run, dispatch it on a `v*` tag, because the
+`production` environment only allows tags. `publish_type` is `DEFAULT_PUBLISH` (publish after review)
+or `STAGED_PUBLISH` (stage it, then publish from the dashboard).
+
+The API only updates an item that exists, so the first upload must be done by hand in the dashboard.
+Publishes through the API keep the visibility set in the dashboard (Unlisted for the first release).
+
+### One-time setup
+
+- [ ] **Google Cloud**: in a project, enable the "Chrome Web Store API", configure the OAuth consent
+  screen, and create an OAuth client of type **Desktop app**. Get a refresh token for the scope
+  `https://www.googleapis.com/auth/chromewebstore` (steps in
+  <https://developer.chrome.com/docs/webstore/using-api>). Note the Publisher ID (Developer
+  Dashboard, Publisher, Settings) and the extension ID.
+- [ ] **Bella Baxter**: create a project (for example `frunchy-extension`) with an environment
+  `production`, holding the secrets `CHROME_PUBLISHER_ID`, `CHROME_EXTENSION_ID`, `CHROME_CLIENT_ID`,
+  `CHROME_CLIENT_SECRET` and `CHROME_REFRESH_TOKEN`.
+- [ ] **Bella Baxter trust domain** (environment, Identity, Add trust domain, GitHub template):
+  - issuer `https://token.actions.githubusercontent.com`
+  - role `Consumer`, TTL `15`, audiences empty (the CLI requests `bella-baxter`)
+  - claim rules, all of which must match: `repository_id` Equals the numeric id from
+    `gh api repos/<owner>/<repo> --jq .id`, and `environment` Equals `production`
+
+  The `environment` rule matters: without it, any workflow run in the repository could read the
+  secrets.
+- [ ] **GitHub environment** `production`, with the deployment rule "Selected tags" set to `v*`. This
+  is what limits when the secrets can be read; Bella Baxter can't express tag patterns.
+- [ ] **GitHub repository variables** (not environment variables: a job's `if:` can't see
+  environment variables, and Bella's context must be repository-level): `BELLA_BAXTER_TENANT`,
+  `BELLA_BAXTER_PROJECT`, `BELLA_BAXTER_ENV` (optional, defaults to `production`) and
+  `FRUNCHY_BACKEND_URL` (the `https://` origin the store build is fixed to).
+
+### Why there is no publish action
+
+A third-party publish action would receive the refresh token. `puzzlers-labs/chrome-webstore-publish`
+runs a `ghcr.io/...:latest` image, so pinning the action doesn't pin the code that would receive the
+token. `scripts/publish-chrome.sh` is a short bash script of curl calls against the documented API, and it is
+the only code in the workflow that sees the secrets. Every `uses:` in the workflow is pinned to a full
+commit SHA.
