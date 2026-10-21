@@ -31,3 +31,8 @@ dist-ssr
 dist-store
 release
 scripts/store-assets/dist
+.github/agents
+.github/hooks
+.github/prompts
+.github/skills
+.serena
