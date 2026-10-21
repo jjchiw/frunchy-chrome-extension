@@ -17,7 +17,11 @@ let sessionNewest: Marker | null = null;
 // request fails.
 let mode: "idle" | "paging" | "scrolling" = "idle";
 const PAGE_INTERVAL_MS = 1000;
+// Longer than the hook's own 30 s request timeout: no answer at all means the
+// hook isn't there or is an older one without paging.
+const PAGE_ANSWER_TIMEOUT_MS = 40000;
 let pagingTimer: number | undefined;
+let answerTimer: number | undefined;
 // True from asking the hook for a page until its page or reply arrives, so a
 // page the site loads by itself doesn't schedule another request.
 let pageRequested = false;
@@ -41,6 +45,7 @@ const notifyScrolling = (scrolling: boolean) =>
 const stopRun = (reason: "end" | "marker" | "user") => {
   if (mode === "idle") return;
   clearTimeout(pagingTimer);
+  clearTimeout(answerTimer);
   clearTimeout(scrollTimer);
   pagingTimer = undefined;
   scrollTimer = undefined;
@@ -86,11 +91,16 @@ const requestNextPage = () => {
   if (mode !== "paging") return;
   pageRequested = true;
   lastRequestAt = Date.now();
+  clearTimeout(answerTimer);
+  answerTimer = window.setTimeout(() => {
+    if (mode === "paging" && pageRequested) fallBackToScrolling("got no answer");
+  }, PAGE_ANSWER_TIMEOUT_MS);
   window.postMessage({ type: "frunchyroll-next" }, "*");
 };
 
 const scheduleNextPage = () => {
   if (mode !== "paging") return;
+  clearTimeout(answerTimer);
   clearTimeout(pagingTimer);
   pagingTimer = window.setTimeout(
     requestNextPage,
@@ -112,6 +122,7 @@ const fallBackToScrolling = (reason: string) => {
   if (mode !== "paging") return;
   console.info(`Frunchy: paging ${reason}, scrolling instead`);
   clearTimeout(pagingTimer);
+  clearTimeout(answerTimer);
   pagingTimer = undefined;
   pageRequested = false;
   mode = "scrolling";
