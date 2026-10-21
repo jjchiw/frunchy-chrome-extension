@@ -73,11 +73,17 @@ Publishes through the API keep the visibility set in the dashboard (Unlisted for
 
 ### One-time setup
 
-- [ ] **Google Cloud**: in a project, enable the "Chrome Web Store API", configure the OAuth consent
-  screen, and create an OAuth client of type **Desktop app**. Get a refresh token for the scope
-  `https://www.googleapis.com/auth/chromewebstore` (steps in
-  <https://developer.chrome.com/docs/webstore/using-api>). Note the Publisher ID (Developer
-  Dashboard, Publisher, Settings) and the extension ID.
+- [ ] **Google Cloud** (steps in <https://developer.chrome.com/docs/webstore/using-api>):
+  - In a project, enable the "Chrome Web Store API".
+  - Configure the OAuth consent screen: External. Then **publish the app** (Production). While it is
+    in Testing, Google expires its refresh tokens after 7 days and releases would start failing.
+  - Create an OAuth client of type **Web application** with the redirect URI
+    `https://developers.google.com/oauthplayground`. Its client ID and secret are
+    `CHROME_CLIENT_ID` and `CHROME_CLIENT_SECRET`.
+  - In the OAuth Playground, use your own OAuth credentials and authorize the scope
+    `https://www.googleapis.com/auth/chromewebstore`, signed in as the account that owns the item.
+    Then exchange the code for tokens: the refresh token is `CHROME_REFRESH_TOKEN`.
+  - Note the Publisher ID (Developer Dashboard, Publisher, Settings) and the extension ID.
 - [ ] **Bella Baxter**: create a project (for example `frunchy-extension`) with an environment
   `production`, holding the secrets `CHROME_PUBLISHER_ID`, `CHROME_EXTENSION_ID`, `CHROME_CLIENT_ID`,
   `CHROME_CLIENT_SECRET` and `CHROME_REFRESH_TOKEN`.
