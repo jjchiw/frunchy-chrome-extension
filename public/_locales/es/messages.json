@@ -349,5 +349,8 @@
         "content": "$1"
       }
     }
+  },
+  "disclaimer": {
+    "message": "Frunchy no está afiliado a Crunchyroll ni a MyAnimeList."
   }
 }

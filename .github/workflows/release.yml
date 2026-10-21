@@ -1,0 +1,117 @@
+name: Release to Chrome Web Store
+
+on:
+    push:
+        tags: ["v*"]
+    workflow_dispatch:
+        inputs:
+            publish:
+                description: "Upload and submit for review; otherwise only build the zip"
+                type: boolean
+                default: false
+            publish_type:
+                description: "Chrome Web Store publish type"
+                type: choice
+                options:
+                    - DEFAULT_PUBLISH
+                    - STAGED_PUBLISH
+                default: DEFAULT_PUBLISH
+
+# No permissions by default; each job asks for what it needs.
+permissions: {}
+
+# One release at a time; never cancel an upload that is already running.
+concurrency:
+    group: chrome-web-store
+    cancel-in-progress: false
+
+# Two jobs on purpose. `package` runs npm and its third-party code, so it never
+# gets secrets or an OIDC token. `publish` gets the secrets and runs only
+# scripts/publish-chrome.sh (bash, curl and jq), never npm.
+#
+# Every `uses:` is pinned to a full commit SHA; the comment names the release.
+# Raise a pin by looking up the new tag's commit, not by moving to a tag.
+jobs:
+    package:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        outputs:
+            version: ${{ steps.version.outputs.version }}
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version: "22.x"
+                  cache: npm
+            - run: npm ci
+            - run: npm run check
+            - name: Read the version
+              id: version
+              env:
+                  REF_TYPE: ${{ github.ref_type }}
+                  REF_NAME: ${{ github.ref_name }}
+              run: |
+                  manifest_version=$(node -p 'require("./manifest.json").version')
+                  package_version=$(node -p 'require("./package.json").version')
+                  if [ "$manifest_version" != "$package_version" ]; then
+                      echo "::error::manifest.json is $manifest_version but package.json is $package_version"
+                      exit 1
+                  fi
+                  if [ "$REF_TYPE" = "tag" ] && [ "$REF_NAME" != "v$manifest_version" ]; then
+                      echo "::error::tag $REF_NAME does not match version $manifest_version (expected v$manifest_version)"
+                      exit 1
+                  fi
+                  echo "version=$manifest_version" >> "$GITHUB_OUTPUT"
+            # The build fails loudly without it. It is a repository variable, not a secret:
+            # the backend URL ends up in the public extension anyway.
+            - run: npm run package
+              env:
+                  FRUNCHY_BACKEND_URL: ${{ vars.FRUNCHY_BACKEND_URL }}
+            - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+              with:
+                  name: frunchy-${{ steps.version.outputs.version }}
+                  path: release/frunchy-${{ steps.version.outputs.version }}.zip
+                  if-no-files-found: error
+                  retention-days: 30
+
+    publish:
+        needs: package
+        if: github.event_name == 'push' || inputs.publish
+        runs-on: ubuntu-latest
+        # The `production` environment is what restricts when the secrets can be read:
+        # it only allows `v*` tags, and Bella Baxter's trust domain requires this
+        # environment name in the OIDC token.
+        environment: production
+        permissions:
+            contents: read
+            id-token: write
+        env:
+            BELLA_BAXTER_URL: https://api.bella-baxter.io
+            BELLA_BAXTER_TENANT: ${{ vars.BELLA_BAXTER_TENANT }}
+            BELLA_BAXTER_PROJECT: ${{ vars.BELLA_BAXTER_PROJECT }}
+            BELLA_BAXTER_ENV: ${{ vars.BELLA_BAXTER_ENV || 'production' }}
+        steps:
+            # Only the publish script is needed here, not the sources.
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+                  sparse-checkout: scripts/publish-chrome.sh
+                  sparse-checkout-cone-mode: false
+            - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+              with:
+                  name: frunchy-${{ needs.package.outputs.version }}
+                  path: release/
+            - uses: cosmic-chimps/bella-baxter-setup-action@cf993ff9e477ec89370abb7f166a4e48a2786693 # v0.1.1-preview.137
+              with:
+                  version: 0.1.1-preview.137
+                  oidc: "true"
+            # `bella run` injects the Bella secrets into this one process only and does
+            # not mask them in the log; publish-chrome.sh masks them itself.
+            - name: Upload and submit for review
+              run: bella run -- bash scripts/publish-chrome.sh "release/frunchy-$VERSION.zip"
+              env:
+                  VERSION: ${{ needs.package.outputs.version }}
+                  PUBLISH_TYPE: ${{ inputs.publish_type || 'DEFAULT_PUBLISH' }}
