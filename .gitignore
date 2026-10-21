@@ -31,3 +31,13 @@ dist-ssr
 dist-store
 release
 scripts/store-assets/dist
+# Spec Kit: which feature is in progress is per checkout
+.specify/feature.json
+# Claude Code worktrees, one per feature branch
+.claude/worktrees/
+# Local tooling, installed per machine: impeccable (its own installer), Serena, Copilot commands
+.github/skills/impeccable/
+.github/hooks/
+.github/agents/
+.github/prompts/
+.serena/
