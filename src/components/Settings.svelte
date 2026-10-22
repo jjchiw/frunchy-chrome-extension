@@ -3,7 +3,7 @@
   import { api, ApiFailure, webPages } from "src/api";
   import Icon from "src/components/Icon.svelte";
   import { errorText, t } from "src/i18n";
-  import { DEFAULT_BASE_URL, FIXED_BACKEND, getSettings, saveSettings, type Settings } from "src/settings";
+  import { DEFAULT_BASE_URL, getSettings, saveSettings, type Settings } from "src/settings";
   import { syncState } from "src/sync";
 
   let baseUrl = $state(DEFAULT_BASE_URL);
@@ -12,6 +12,9 @@
   let checking = $state(false);
   let result = $state<{ ok: boolean; text: string; dashboardUrl?: string } | null>(null);
   let showKey = $state(false);
+
+  // The development manifest also allows http servers; the store build reaches only secure sites.
+  const allowsHttp = chrome.runtime.getManifest().optional_host_permissions?.includes("http://*/*") ?? false;
 
   // Where to get a key, for whatever backend URL is typed in right now.
   const connectUrl = $derived.by(() => {
@@ -34,20 +37,22 @@
 
     let origin: string;
     try {
-      origin = new URL(FIXED_BACKEND ? DEFAULT_BASE_URL : baseUrl.trim()).origin;
+      origin = new URL(baseUrl.trim()).origin;
     } catch {
+      result = { ok: false, text: t("err_invalid_url") };
+      return;
+    }
+    // The store build reaches only secure sites (the default origin is allowed at install).
+    if (origin !== DEFAULT_BASE_URL && !allowsHttp && !origin.startsWith("https://")) {
       result = { ok: false, text: t("err_invalid_url") };
       return;
     }
 
     // Must run first: Chrome only shows the prompt while the click is fresh.
-    // The store build's backend is a required host permission already.
-    if (!FIXED_BACKEND) {
-      const granted = await chrome.permissions.request({ origins: [`${origin}/*`] });
-      if (!granted) {
-        result = { ok: false, text: t("err_permission_denied", origin) };
-        return;
-      }
+    const granted = await chrome.permissions.request({ origins: [`${origin}/*`] });
+    if (!granted) {
+      result = { ok: false, text: t("err_permission_denied", origin) };
+      return;
     }
 
     const settings: Settings = { baseUrl: origin, syncKey: syncKey.trim() };
@@ -75,19 +80,15 @@
 
 <form class="settings" onsubmit={saveAndCheck}>
   <h1>{t("settings_title")}</h1>
-  {#if FIXED_BACKEND}
-    <p class="hint">{t("connects_to", new URL(DEFAULT_BASE_URL).host)}</p>
-  {:else}
-    <div class="field">
-      <div class="label-row">
-        <label class="label" for="base-url">{t("base_url_label")}</label>
-        {#if baseUrl.trim() !== DEFAULT_BASE_URL}
-          <button type="button" class="link" onclick={() => (baseUrl = DEFAULT_BASE_URL)}>{t("use_default_url")}</button>
-        {/if}
-      </div>
-      <input id="base-url" type="url" bind:value={baseUrl} required />
+  <div class="field">
+    <div class="label-row">
+      <label class="label" for="base-url">{t("base_url_label")}</label>
+      {#if baseUrl.trim() !== DEFAULT_BASE_URL}
+        <button type="button" class="link" onclick={() => (baseUrl = DEFAULT_BASE_URL)}>{t("use_default_url")}</button>
+      {/if}
     </div>
-  {/if}
+    <input id="base-url" type="url" bind:value={baseUrl} required />
+  </div>
   <div class="field">
     <label class="label" for="sync-key">{t("sync_key_label")}</label>
     <div class="key">

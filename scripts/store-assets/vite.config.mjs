@@ -19,8 +19,7 @@ export default defineConfig({
         },
     },
     define: {
-        __STORE_BUILD__: "true",
-        __BACKEND_URL__: JSON.stringify("https://frunchy.example"),
+        __BACKEND_URL__: JSON.stringify(process.env.FRUNCHY_BACKEND_URL ?? "https://frunchy.example"),
     },
     build: {
         outDir: `${here}dist`,

@@ -26,6 +26,8 @@ Getting started
 3. Paste the key into the extension's settings and press Save and check.
 4. Open your Crunchyroll history and press Scrape history.
 
+Frunchy is self-hosted: if you run your own Frunchy server, enter its address in the extension's settings.
+
 Frunchy is not affiliated with Crunchyroll or MyAnimeList.
 
 ## Not-affiliated line

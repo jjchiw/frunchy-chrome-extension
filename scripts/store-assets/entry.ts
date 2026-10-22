@@ -147,6 +147,8 @@ const chromeStub: any = {
     sendMessage: async () => ({ queued: 0 }),
     onMessage: listeners(),
     openOptionsPage: async () => {},
+    // The store build's manifest: it reaches https servers only.
+    getManifest: () => ({ optional_host_permissions: ["https://*/*"] }),
     lastError: undefined,
   },
   permissions: { request: async () => true },

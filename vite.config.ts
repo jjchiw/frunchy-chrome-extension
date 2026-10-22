@@ -6,7 +6,7 @@ import devManifest from "./manifest.json" with { type: "json" };
 
 const srcDir = fileURLToPath(new URL("./src", import.meta.url));
 
-// The backend the store build is fixed to: https only, and only the origin is kept.
+// The store build's default backend: https only, and only the origin is kept.
 const storeBackendOrigin = () => {
     const value = process.env.FRUNCHY_BACKEND_URL;
     if (!value) {
@@ -28,15 +28,16 @@ const storeBackendOrigin = () => {
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-    // `vite build --mode store` makes the Chrome Web Store build: one fixed backend, no localhost.
+    // `vite build --mode store` makes the Chrome Web Store build: a default backend instead of localhost.
     const store = mode === "store";
     const origin = store ? storeBackendOrigin() : "";
 
-    // manifest.json stays the development manifest; the store build narrows its host permissions.
+    // manifest.json stays the development manifest. The store build asks at install only for Crunchyroll
+    // and its default backend; any other https server (self-hosted) is requested when the user saves it.
     const manifest = structuredClone(devManifest) as typeof devManifest & { optional_host_permissions?: string[] };
     if (store) {
         manifest.host_permissions = ["https://www.crunchyroll.com/*", `${origin}/*`];
-        delete manifest.optional_host_permissions;
+        manifest.optional_host_permissions = ["https://*/*"];
     }
 
     return {
@@ -47,7 +48,6 @@ export default defineConfig(({ mode }) => {
             },
         },
         define: {
-            __STORE_BUILD__: JSON.stringify(store),
             __BACKEND_URL__: JSON.stringify(store ? origin : "http://localhost:5099"),
         },
         build: {

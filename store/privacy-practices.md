@@ -2,7 +2,7 @@
 
 Copy each answer into the matching field of the developer dashboard (Store listing, then Privacy
 practices). `<backend>` is the HTTPS origin the store build was made for (the
-`FRUNCHY_BACKEND_URL` of `npm run package`).
+`FRUNCHY_BACKEND_URL` of `npm run package`), the extension's default server.
 
 ## Single purpose
 
@@ -36,8 +36,14 @@ The extension's content script and the page hook run on Crunchyroll pages to rea
 watch history, and the popup reads the active tab's URL to tell whether it is the history page.
 
 **Host permission `<backend>/*`**
-The Frunchy backend API. The extension uploads history pages and checks the sync key there. It
-talks to no other server.
+The default Frunchy backend API. The extension uploads history pages and checks the sync key
+there. It talks to no server other than Crunchyroll and the Frunchy server the user configured.
+
+**Optional host permission `https://*/*`**
+Frunchy can be self-hosted, so the user can enter the address of their own Frunchy server in the
+extension's settings. Chrome asks for access to that one `https://` site only when the user saves
+the address, and the extension then uploads history pages and checks the sync key there. Nothing is
+requested at install for it, and the extension contacts no other site.
 
 ## Remote code
 
@@ -100,7 +106,8 @@ extension.
 
 **Sent to the Frunchy backend**
 
-- The watch-history pages, with the Crunchyroll profile id, only to the configured backend.
+- The watch-history pages, with the Crunchyroll profile id, only to the configured backend (the
+  default server, or the user's own Frunchy server).
 - The sync key, as a bearer token, so the backend knows which Frunchy account the history belongs
   to.
 
@@ -110,4 +117,4 @@ extension.
 - Crunchyroll's sign-in tokens. The page hook reads only the profile id and name from those
   responses, and the sign-in header of the site's history requests is only used for its own
   requests to Crunchyroll.
-- Anything to any other server.
+- Anything to any server other than Crunchyroll and the Frunchy server the user configured.

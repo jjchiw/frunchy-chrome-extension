@@ -26,6 +26,8 @@ Cómo empezar
 3. Pega la clave en los ajustes de la extensión y pulsa Guardar y comprobar.
 4. Abre tu historial de Crunchyroll y pulsa Escanear historial.
 
+Frunchy se puede autoalojar: si tienes tu propio servidor de Frunchy, escribe su dirección en los ajustes de la extensión.
+
 Frunchy no está afiliado a Crunchyroll ni a MyAnimeList.
 
 ## Línea de no afiliación

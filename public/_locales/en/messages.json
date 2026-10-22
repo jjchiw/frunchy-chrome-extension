@@ -342,14 +342,6 @@
   "ext_description": {
     "message": "Syncs your Crunchyroll watch history to Frunchy."
   },
-  "connects_to": {
-    "message": "Connects to $HOST$",
-    "placeholders": {
-      "host": {
-        "content": "$1"
-      }
-    }
-  },
   "disclaimer": {
     "message": "Frunchy is not affiliated with Crunchyroll or MyAnimeList."
   }
