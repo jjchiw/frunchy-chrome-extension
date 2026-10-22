@@ -10,7 +10,7 @@
 
 ## Phase 1: Setup
 
-- [ ] T001 Repair the version drift from the hand bump: run `npm version 0.1.1 --no-git-tag-version --ignore-scripts --allow-same-version` so `package-lock.json` says 0.1.1, then restore `package.json`'s 4-space indentation (the repository's style; the editor left it mixed). `manifest.json` already says 0.1.1. Commit as "Bring package-lock.json to 0.1.1".
+- [X] T001 Repair the version drift from the hand bump: run `npm version 0.1.1 --no-git-tag-version --ignore-scripts --allow-same-version` so `package-lock.json` says 0.1.1, then restore `package.json`'s 4-space indentation (the repository's style; the editor left it mixed). `manifest.json` already says 0.1.1. Commit as "Bring package-lock.json to 0.1.1".
 
 ---
 
