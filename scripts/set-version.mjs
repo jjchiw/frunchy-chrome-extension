@@ -32,6 +32,11 @@ const tags = execFileSync("git", ["tag", "-l", `v${version}`], { encoding: "utf8
 if (tags !== "") {
   fail(`tag v${version} already exists`);
 }
+// The line edit below needs the version key in this exact form.
+const versionLine = `"version": "${current}"`;
+if (!manifestText.includes(versionLine)) {
+  fail(`manifest.json has no line ${versionLine} to update`);
+}
 
 // Updates package.json and package-lock.json, keeping their indentation (and repairing a
 // package.json that already says `version`).
@@ -39,5 +44,5 @@ execFileSync("npm", ["version", version, "--no-git-tag-version", "--ignore-scrip
   stdio: ["ignore", "ignore", "inherit"],
 });
 // Edit the one line rather than re-serialize, so the file's formatting stays as it is.
-writeFileSync("manifest.json", manifestText.replace(`"version": "${current}"`, `"version": "${version}"`));
+writeFileSync("manifest.json", manifestText.replace(versionLine, `"version": "${version}"`));
 console.log(version);
