@@ -29,7 +29,7 @@
   - Never put the value in a posted message, on `window`, in `console`, or in an attribute.
 - **Rationale**: The site already holds this header in the same world. Keeping a reference in a
   closure exposes nothing new, and FR-006 is met as long as it's never posted.
-- **Unknown**: whether the site sets the header with `setRequestHeader` and not another way. If
+- **Confirmed on crunchyroll.com (2026-10-22)**: the owner's manual check paged without scrolling, so the site does set the header with `setRequestHeader`. Originally an open question: whether the site sets the header with `setRequestHeader` and not another way. If
   `historyAuth` is never set, paging can't start and the run scrolls, as today (FR-008). So the
   feature is safe even if this assumption is wrong. The owner's manual test on crunchyroll.com
   confirms which path is taken (quickstart §4).
