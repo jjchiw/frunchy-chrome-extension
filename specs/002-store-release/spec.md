@@ -1,5 +1,7 @@
 # Feature Specification: Chrome Web Store release build
 
+**Superseded in part**: FR-003 and FR-004 (the fixed backend) by `specs/005-self-hosted-release/`.
+
 **Feature Branch**: `002-store-release`
 
 **Created**: 2026-10-20

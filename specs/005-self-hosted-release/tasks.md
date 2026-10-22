@@ -46,9 +46,9 @@
 
 ## Phase 4: Polish
 
-- [ ] T012 [P] CLAUDE.md: the store-build paragraph (default backend, optional `https://*/*`, https-only rule read from the manifest, no fixed backend or install-time migration) and the release paragraph (the `release` job, `scripts/set-version.mjs`, releases from `main`, the environment rule). Keep the style.
-- [ ] T013 [P] `specs/002-store-release/spec.md`: add under the title "**Superseded in part**: FR-003 and FR-004 (the fixed backend) by `specs/005-self-hosted-release/`."
-- [ ] T014 Final run of quickstart §1–§4; report numbers and outputs.
+- [X] T012 [P] CLAUDE.md: the store-build paragraph (default backend, optional `https://*/*`, https-only rule read from the manifest, no fixed backend or install-time migration) and the release paragraph (the `release` job, `scripts/set-version.mjs`, releases from `main`, the environment rule). Keep the style.
+- [X] T013 [P] `specs/002-store-release/spec.md`: add under the title "**Superseded in part**: FR-003 and FR-004 (the fixed backend) by `specs/005-self-hosted-release/`."
+- [X] T014 Final run of quickstart §1–§4; report numbers and outputs.
 
 ## Dependencies
 
