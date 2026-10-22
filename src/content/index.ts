@@ -3,12 +3,29 @@ import { newestEntry, type Marker } from "src/sync";
 
 // public/injected.js runs in the page world (registered by the service worker)
 // and posts watch-history responses and the active Crunchyroll profile here.
+// It also requests the next history page when asked (the sign-in header it
+// needs never leaves the page world).
 
 // Pages captured since this tab loaded start at the newest history page and
-// run contiguously while scrolling, so their newest entry is what a completed
-// scrape has synced up to.
+// run contiguously while paging or scrolling, so their newest entry is what a
+// completed scrape has synced up to.
 const sessionStartedAt = new Date().toISOString();
 let sessionNewest: Marker | null = null;
+
+// A scrape pages through the history one request at a time, at least a second
+// apart, and falls back to scrolling when the page hook can't page or a
+// request fails.
+let mode: "idle" | "paging" | "scrolling" = "idle";
+const PAGE_INTERVAL_MS = 1000;
+// Longer than the hook's own 30 s request timeout: no answer at all means the
+// hook isn't there or is an older one without paging.
+const PAGE_ANSWER_TIMEOUT_MS = 40000;
+let pagingTimer: number | undefined;
+let answerTimer: number | undefined;
+// True from asking the hook for a page until its page or reply arrives, so a
+// page the site loads by itself doesn't schedule another request.
+let pageRequested = false;
+let lastRequestAt = 0;
 
 let lastBodyScrollHeight = 0;
 let isSameHeightTimes = 0;
@@ -19,16 +36,21 @@ let scrollTimer: number | undefined;
 let profileId: string | null = null;
 let waitingForProfile: HistoryPage[] = [];
 
-// Tell an open popup that scrolling started or stopped. Fails harmlessly when
+// Tell an open popup that a scrape started or stopped. Fails harmlessly when
 // no popup is open.
 const notifyScrolling = (scrolling: boolean) =>
   chrome.runtime.sendMessage({ message: "SCROLL_STATE", scrolling }).catch(() => undefined);
 
 // reason: "end" (history exhausted), "marker" (reached synced history) or "user".
-const stopScrolling = (reason: "end" | "marker" | "user") => {
-  if (scrollTimer === undefined) return;
+const stopRun = (reason: "end" | "marker" | "user") => {
+  if (mode === "idle") return;
+  clearTimeout(pagingTimer);
+  clearTimeout(answerTimer);
   clearTimeout(scrollTimer);
+  pagingTimer = undefined;
   scrollTimer = undefined;
+  pageRequested = false;
+  mode = "idle";
   notifyScrolling(false);
   chrome.runtime
     .sendMessage({ message: "RUN_END", reason, newest: sessionNewest, sessionStartedAt })
@@ -50,7 +72,7 @@ const scrollDown = () => {
       return;
     }
     // Page height stopped growing: reached the end of the history.
-    stopScrolling("end");
+    stopRun("end");
   }, 2000);
 };
 
@@ -59,7 +81,52 @@ const startScrolling = () => {
   lastBodyScrollHeight = 0;
   isSameHeightTimes = 0;
   scrollDown();
+};
+
+// Ask the page hook for the next history page. Its answer is the page itself,
+// which arrives like any other history response, or a "frunchyroll-paging"
+// message.
+const requestNextPage = () => {
+  pagingTimer = undefined;
+  if (mode !== "paging") return;
+  pageRequested = true;
+  lastRequestAt = Date.now();
+  clearTimeout(answerTimer);
+  answerTimer = window.setTimeout(() => {
+    if (mode === "paging" && pageRequested) fallBackToScrolling("got no answer");
+  }, PAGE_ANSWER_TIMEOUT_MS);
+  window.postMessage({ type: "frunchyroll-next" }, "*");
+};
+
+const scheduleNextPage = () => {
+  if (mode !== "paging") return;
+  clearTimeout(answerTimer);
+  clearTimeout(pagingTimer);
+  pagingTimer = window.setTimeout(
+    requestNextPage,
+    Math.max(0, PAGE_INTERVAL_MS - (Date.now() - lastRequestAt))
+  );
+};
+
+const startRun = () => {
+  clearTimeout(pagingTimer);
+  clearTimeout(scrollTimer);
+  mode = "paging";
+  pageRequested = false;
   notifyScrolling(true);
+  requestNextPage();
+};
+
+// The popup is already told the scrape is running, so this doesn't notify.
+const fallBackToScrolling = (reason: string) => {
+  if (mode !== "paging") return;
+  console.info(`Frunchy: paging ${reason}, scrolling instead`);
+  clearTimeout(pagingTimer);
+  clearTimeout(answerTimer);
+  pagingTimer = undefined;
+  pageRequested = false;
+  mode = "scrolling";
+  startScrolling();
 };
 
 const sendPage = async (page: HistoryPage) => {
@@ -70,7 +137,7 @@ const sendPage = async (page: HistoryPage) => {
   const response = await chrome.runtime
     .sendMessage({ message: "PAGE_CAPTURED", page })
     .catch(console.error);
-  if (response?.reachedMarker) stopScrolling("marker");
+  if (response?.reachedMarker) stopRun("marker");
 };
 
 const setProfile = (data: { profileId: string; profileName?: string | null }) => {
@@ -105,13 +172,31 @@ window.addEventListener(
       setProfile(event.data);
       return;
     }
+    if (event.data?.type === "frunchyroll-paging") {
+      if (mode !== "paging") return;
+      pageRequested = false;
+      const { state, status } = event.data;
+      if (state === "end") {
+        stopRun("end");
+      } else {
+        // Only the state and a status code are logged, never data.
+        const detail = typeof status === "number" || status === "timeout" ? ` (${status})` : "";
+        fallBackToScrolling(`${state === "failed" ? "failed" : "unavailable"}${detail}`);
+      }
+      return;
+    }
     if (event.data?.type !== "frunchyroll") return;
+
+    // The page that answers a request of ours, as opposed to one the site loaded.
+    const requested = mode === "paging" && pageRequested;
+    if (requested) pageRequested = false;
 
     let body: HistoryPage["body"];
     try {
       body = JSON.parse(event.data.responseText);
     } catch (err) {
       console.error("Frunchy: watch-history response is not JSON", err);
+      if (requested) fallBackToScrolling("got an unreadable page");
       return;
     }
     const page: HistoryPage = {
@@ -120,8 +205,14 @@ window.addEventListener(
       profileId,
       body,
     };
-    if (profileId) sendPage(page);
-    else waitingForProfile.push(page);
+    if (profileId) {
+      const sent = sendPage(page);
+      // A marker stop in sendPage ends the run first, which cancels the schedule.
+      if (requested) sent.catch(console.error).then(scheduleNextPage);
+    } else {
+      waitingForProfile.push(page);
+      if (requested) scheduleNextPage();
+    }
   },
   false
 );
@@ -140,15 +231,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         sendResponse({ ok: false, error: "not_history_page" });
         return;
       }
-      startScrolling();
+      startRun();
       sendResponse({ ok: true, scrolling: true });
       return;
     case "SCROLL_STOP":
-      stopScrolling("user");
+      stopRun("user");
       sendResponse({ ok: true, scrolling: false });
       return;
     case "SCROLL_STATUS":
-      sendResponse({ ok: true, scrolling: scrollTimer !== undefined });
+      sendResponse({ ok: true, scrolling: mode !== "idle" });
       return;
     default:
       sendResponse("pong");

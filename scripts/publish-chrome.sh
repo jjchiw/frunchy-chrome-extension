@@ -5,7 +5,7 @@
 #
 # Required environment:
 #   CHROME_PUBLISHER_ID, CHROME_EXTENSION_ID   the item to update
-#   CHROME_CLIENT_ID, CHROME_CLIENT_SECRET     the OAuth client (Desktop app)
+#   CHROME_CLIENT_ID, CHROME_CLIENT_SECRET     the OAuth client (Web application)
 #   CHROME_REFRESH_TOKEN                       refresh token for scope
 #                                              https://www.googleapis.com/auth/chromewebstore
 # Optional environment:
