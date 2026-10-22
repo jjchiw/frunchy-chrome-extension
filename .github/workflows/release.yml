@@ -5,6 +5,10 @@ on:
         tags: ["v*"]
     workflow_dispatch:
         inputs:
+            version:
+                description: "Version to release (major.minor.patch); blank = next patch. Used only when publish is on"
+                type: string
+                required: false
             publish:
                 description: "Upload and submit for review; otherwise only build the zip"
                 type: boolean
@@ -25,22 +29,79 @@ concurrency:
     group: chrome-web-store
     cancel-in-progress: false
 
-# Two jobs on purpose. `package` runs npm and its third-party code, so it never
-# gets secrets or an OIDC token. `publish` gets the secrets and runs only
-# scripts/publish-chrome.sh (bash, curl and jq), never npm.
+# Three jobs on purpose. `release` may write to the repository (the version commit
+# and its tag), so it runs no third-party code: only git, Node and npm's own
+# `version` command through scripts/set-version.mjs, never `npm ci`. `package` runs
+# npm and its third-party code, so it never gets write access, secrets or an OIDC
+# token. `publish` gets the secrets and runs only scripts/publish-chrome.sh (bash,
+# curl and jq), never npm.
 #
 # Every `uses:` is pinned to a full commit SHA; the comment names the release.
 # Raise a pin by looking up the new tag's commit, not by moving to a tag.
 jobs:
+    # Only a hand run with `publish` on, and only from the default branch. A tag push
+    # skips it: the tag already names the version.
+    release:
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish }}
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        outputs:
+            version: ${{ steps.version.outputs.version }}
+            sha: ${{ steps.commit.outputs.sha }}
+        steps:
+            # Before anything else: otherwise this job could commit and tag any branch,
+            # and `publish` would then be refused by the environment rule.
+            - name: Only from the default branch
+              env:
+                  REF: ${{ github.ref }}
+                  DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+              run: |
+                  if [ "$REF" != "refs/heads/$DEFAULT_BRANCH" ]; then
+                      echo "::error::releases are made from $DEFAULT_BRANCH; run the workflow there"
+                      exit 1
+                  fi
+            # Credentials stay, since this job pushes. It needs the tags to check the new one is free.
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  fetch-depth: 0
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version: "22.x"
+            # Checks the version before writing anything. No `npm ci`: nothing from node_modules runs here.
+            - name: Set the version
+              id: version
+              env:
+                  VERSION: ${{ inputs.version }}
+              run: |
+                  version=$(node scripts/set-version.mjs "$VERSION")
+                  echo "version=$version" >> "$GITHUB_OUTPUT"
+            - name: Commit and tag
+              id: commit
+              env:
+                  VERSION: ${{ steps.version.outputs.version }}
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                  git commit -am "Release v$VERSION"
+                  git tag "v$VERSION"
+                  git push --atomic origin HEAD "v$VERSION"
+                  echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
     package:
+        needs: release
+        # `release` is skipped on a tag push and on a dry run; a failed one stops the run.
+        if: ${{ !cancelled() && (needs.release.result == 'success' || needs.release.result == 'skipped') }}
         runs-on: ubuntu-latest
         permissions:
             contents: read
         outputs:
             version: ${{ steps.version.outputs.version }}
         steps:
+            # After a release, build the commit that job made, not the one that was dispatched.
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:
+                  ref: ${{ needs.release.outputs.sha || github.sha }}
                   persist-credentials: false
             - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
               with:
@@ -53,6 +114,7 @@ jobs:
               env:
                   REF_TYPE: ${{ github.ref_type }}
                   REF_NAME: ${{ github.ref_name }}
+                  RELEASE_VERSION: ${{ needs.release.outputs.version }}
               run: |
                   manifest_version=$(node -p 'require("./manifest.json").version')
                   package_version=$(node -p 'require("./package.json").version')
@@ -62,6 +124,10 @@ jobs:
                   fi
                   if [ "$REF_TYPE" = "tag" ] && [ "$REF_NAME" != "v$manifest_version" ]; then
                       echo "::error::tag $REF_NAME does not match version $manifest_version (expected v$manifest_version)"
+                      exit 1
+                  fi
+                  if [ -n "$RELEASE_VERSION" ] && [ "$RELEASE_VERSION" != "$manifest_version" ]; then
+                      echo "::error::the release job set $RELEASE_VERSION but the files say $manifest_version"
                       exit 1
                   fi
                   echo "version=$manifest_version" >> "$GITHUB_OUTPUT"
@@ -78,12 +144,12 @@ jobs:
                   retention-days: 30
 
     publish:
-        needs: package
-        if: github.event_name == 'push' || inputs.publish
+        needs: [release, package]
+        if: ${{ !cancelled() && needs.package.result == 'success' && (github.event_name == 'push' || needs.release.result == 'success') }}
         runs-on: ubuntu-latest
         # The `production` environment is what restricts when the secrets can be read:
-        # it only allows `v*` tags, and Bella Baxter's trust domain requires this
-        # environment name in the OIDC token.
+        # it only allows the default branch (hand runs) and `v*` tags, and Bella Baxter's
+        # trust domain requires this environment name in the OIDC token.
         environment: production
         permissions:
             contents: read

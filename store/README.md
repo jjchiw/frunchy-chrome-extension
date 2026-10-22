@@ -30,9 +30,10 @@ afterwards: no real names or titles, fonts rendered, nothing clipped.
 FRUNCHY_BACKEND_URL=https://<domain> npm run package
 ```
 
-This writes `release/frunchy-<version>.zip`. The build asks only for Crunchyroll and that backend
-origin, and is fixed to it. It fails if the variable is missing or not `https://`, or if the output
-mentions `localhost`.
+This writes `release/frunchy-<version>.zip`. The build asks at install only for Crunchyroll and that
+backend origin, which is the default server address. Users who run their own Frunchy replace it in
+the extension's settings, and Chrome then asks for that one `https://` site. It fails if the variable
+is missing or not `https://`, or if the output mentions `localhost`.
 
 ## Owner checklist
 
@@ -46,8 +47,8 @@ mentions `localhost`.
    `privacy-practices.md`.
 7. Choose **Unlisted** visibility for the first release.
 8. Submit for review.
-9. For every later upload, raise `version` in `manifest.json` and `package.json` first. GitHub
-   Actions can publish it (next section; do its one-time setup once the first release is out).
+9. For every later upload, run the release workflow with the new `version` (next section; do its
+   one-time setup once the first release is out). No hand edit of the version files is needed.
 
 ## Publishing from GitHub Actions
 
@@ -55,18 +56,29 @@ mentions `localhost`.
 
 ### How a release works
 
-1. Raise `version` in `manifest.json` and `package.json` (they must match) and commit.
-2. `git tag v<version>` and push the tag.
-3. The `package` job runs `npm ci`, `npm run check` and `npm run package`, and keeps the zip as a
-   workflow artifact. It has no secrets. It fails if the two versions differ or the tag is not
-   `v<version>`.
+Open **Actions**, **Release to Chrome Web Store**, **Run workflow**, on `main`:
+
+1. Type the `version` (`major.minor.patch`, higher than the current one), or leave it blank for the
+   next patch (`0.1.1` becomes `0.1.2`), and tick `publish`.
+2. The `release` job sets the version in `manifest.json`, `package.json` and `package-lock.json`
+   with `scripts/set-version.mjs`, commits "Release v<version>" to `main` and tags `v<version>`. It
+   has write access and runs no `npm ci`, only git, Node and `npm version`. It stops before changing
+   anything if the version is malformed, not higher, already tagged, or the run isn't on `main`.
+3. The `package` job builds that commit: `npm ci`, `npm run check` and `npm run package`, and keeps
+   the zip as a workflow artifact. It has no secrets. It fails if the files' versions differ.
 4. The `publish` job downloads the zip, gets the Chrome secrets from Bella Baxter and runs
    `scripts/publish-chrome.sh`, which uploads the zip and submits it for review.
 
-For a manual run, use **Run workflow** (`workflow_dispatch`). With `publish` off (the default) it
-only builds the zip artifact. To publish from a manual run, dispatch it on a `v*` tag, because the
-`production` environment only allows tags. `publish_type` is `DEFAULT_PUBLISH` (publish after review)
-or `STAGED_PUBLISH` (stage it, then publish from the dashboard).
+With `publish` off (the default) the run is a dry run: it only builds a zip artifact from the files
+as they are, ignores `version` and changes nothing in the repository. A push made with the
+workflow's own token starts no second run, so the tag the `release` job creates doesn't release
+twice. `publish_type` is `DEFAULT_PUBLISH` (publish after review) or `STAGED_PUBLISH` (stage it,
+then publish from the dashboard).
+
+The alternative is the tag path: raise `version` in `manifest.json` and `package.json` (they must
+match) and commit, then `git tag v<version>` and push the tag. The `package` and `publish` jobs run
+as above; the build fails if the tag isn't `v<version>`. Use it if `main` is protected against the
+workflow's push.
 
 The API only updates an item that exists, so the first upload must be done by hand in the dashboard.
 Publishes through the API keep the visibility set in the dashboard (Unlisted for the first release).
@@ -95,12 +107,17 @@ Publishes through the API keep the visibility set in the dashboard (Unlisted for
 
   The `environment` rule matters: without it, any workflow run in the repository could read the
   secrets.
-- [ ] **GitHub environment** `production`, with the deployment rule "Selected tags" set to `v*`. This
-  is what limits when the secrets can be read; Bella Baxter can't express tag patterns.
+- [ ] **GitHub environment** `production`, with deployment branches and tags limited to the branch
+  `main` and the tag pattern `v*`. This is what limits when the secrets can be read; Bella Baxter
+  can't express tag patterns. A release from the workflow runs on `main`; the tag path runs on a
+  `v*` tag.
+- [ ] **Branch `main`** must accept a push from the workflow's token (no protection rule blocking it),
+  because the `release` job pushes the version commit. If `main` is protected, allow that push or
+  use the tag path.
 - [ ] **GitHub repository variables** (not environment variables: a job's `if:` can't see
   environment variables, and Bella's context must be repository-level): `BELLA_BAXTER_TENANT`,
   `BELLA_BAXTER_PROJECT`, `BELLA_BAXTER_ENV` (optional, defaults to `production`) and
-  `FRUNCHY_BACKEND_URL` (the `https://` origin the store build is fixed to).
+  `FRUNCHY_BACKEND_URL` (the `https://` origin the store build uses as its default server).
 
 ### Why there is no publish action
 
