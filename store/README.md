@@ -12,6 +12,9 @@ checklist below).
   section on what the extension stores and sends that the backend's privacy page can reuse.
 - `images/`: `screenshot-<lang>-<n>.png` (1280x800, four per language: ready to scrape, scraping,
   synced, connected options page) and `promo-440x280.png`. They show invented data only.
+- `guide/`: the same four states without the canvas (`extension-<state>-<lang>.png`: the popup at
+  380 px or the options page at 480 px, rendered at 2x) for the website's install guide. See
+  `guide/README.md`.
 
 ## Regenerate the images
 
