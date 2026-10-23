@@ -53,10 +53,10 @@ fi
 item="publishers/$CHROME_PUBLISHER_ID/items/$CHROME_EXTENSION_ID"
 
 # 1. Access token. jq reads the secrets from the environment and the form body goes
-# to curl on stdin, so neither appears in any process arguments.
+# to curl on stdin without a trailing newline, so neither appears in process arguments.
 export CHROME_CLIENT_ID CHROME_CLIENT_SECRET CHROME_REFRESH_TOKEN
 token_response=$(
-    jq -rn '[
+    jq -jn '[
         "client_id=" + ($ENV.CHROME_CLIENT_ID | @uri),
         "client_secret=" + ($ENV.CHROME_CLIENT_SECRET | @uri),
         "refresh_token=" + ($ENV.CHROME_REFRESH_TOKEN | @uri),
