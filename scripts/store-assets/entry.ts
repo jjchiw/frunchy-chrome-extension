@@ -1,8 +1,9 @@
 // Generator page for the Chrome Web Store images (see render.mjs). It stubs chrome.*, mounts the
 // real Popup or Settings component with invented data, and lays the result out on a 1280x800
 // screenshot canvas or a 440x280 promo tile. Nothing here comes from a real account.
+// kind=plain skips the canvas: the component alone at its natural height, for the website's guide.
 //
-// Query: kind=shot|promo, state=ready|scraping|synced|options, lang=en|es.
+// Query: kind=shot|plain|promo, state=ready|scraping|synced|options, lang=en|es.
 import enMessages from "@repo/public/_locales/en/messages.json";
 import esMessages from "@repo/public/_locales/es/messages.json";
 import mark from "src/assets/brand/frunchy-mark.svg";
@@ -177,6 +178,19 @@ if (kind === "promo") {
   document.body.style.height = "280px";
   stage.style.cssText = "display:flex;align-items:center;justify-content:center;gap:16px;width:440px;height:280px;visibility:hidden;";
   stage.innerHTML = `<img src="${mark}" alt="" width="88" height="88" /><span style="font-family:var(--font-display);font-weight:800;font-size:60px;letter-spacing:-0.025em;line-height:1">Frunchy</span>`;
+} else if (kind === "plain") {
+  // No canvas, caption or frame: the page is the component, 380 px (popup) or 480 px (options).
+  document.body.style.width = `${state === "options" ? 480 : 380}px`;
+  document.body.style.background = "var(--color-surface)";
+  stage.style.cssText = "visibility:hidden;";
+  stage.innerHTML = `<div id="window"></div>`;
+
+  const { mount } = await import("svelte");
+  const App =
+    state === "options"
+      ? (await import("src/components/Settings.svelte")).default
+      : (await import("src/components/Popup.svelte")).default;
+  mount(App, { target: document.getElementById("window")! });
 } else {
   // The popup is 380 px wide and the options form at most 480, shown at 1.25x on the left,
   // with the caption on the right.
@@ -209,7 +223,11 @@ if (kind !== "promo" && state === "options") {
 }
 await document.fonts.ready;
 
-if (kind !== "promo") {
+if (kind === "plain") {
+  // render.mjs reads this to size the window.
+  const height = document.getElementById("window")!.getBoundingClientRect().height;
+  document.documentElement.setAttribute("data-height", String(Math.ceil(height)));
+} else if (kind !== "promo") {
   const frame = document.getElementById("window")!;
   const caption = document.getElementById("caption")!;
   const SCALE = 1.25;
