@@ -18,7 +18,7 @@
     "message": "Ajustes"
   },
   "open_dashboard": {
-    "message": "Abrir Dashboard Web"
+    "message": "Abrir mi panel"
   },
   "sync_off": {
     "message": "La sincronización está desactivada. Añade tu clave en Ajustes."
@@ -307,7 +307,7 @@
     "message": "ADN anime"
   },
   "dashboard": {
-    "message": "Dashboard"
+    "message": "Panel"
   },
   "open_settings": {
     "message": "Abrir Ajustes"
