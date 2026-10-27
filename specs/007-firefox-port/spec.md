@@ -115,8 +115,8 @@ package, and the add-on listing texts and privacy answers in English and Spanish
 
 **Why this priority**: Needed to ship, but only after the extension works.
 
-**Independent Test**: On a clean checkout, run the documented build twice and get byte-identical
-packages; follow the source-archive instructions on another machine and get the same package;
+**Independent Test**: On a clean checkout, run the documented build twice and get packages with
+identical files; follow the source-archive instructions on another machine and get the same package;
 Mozilla's validator reports no errors.
 
 **Acceptance Scenarios**:
@@ -138,7 +138,7 @@ Mozilla's validator reports no errors.
   is what catches it.
 - Private windows: Firefox doesn't run extensions in private windows unless the user allows it.
   The popup on a private Crunchyroll tab finds no content script and must not suggest a reload that
-  can't help.
+  can't help. The same holds for Chrome's incognito windows.
 - The history hook is registered by the background at install and startup. If access to
   Crunchyroll is granted after that, the hook must run on the next page load without reinstalling.
 - On Android the popup may be shown in its own tab or panel, so "the active tab" may be the popup
@@ -175,7 +175,8 @@ Mozilla's validator reports no errors.
   JSON format and the texts MUST behave as in Chrome.
 - **FR-007**: The popup MUST check that access to Crunchyroll, and to the configured Frunchy server
   when a sync key is set, is granted. When any is missing it MUST say which and offer a button
-  that asks the browser for it. It MUST NOT ask without a click.
+  that asks the browser for it. It MUST NOT ask without a click. When the tab is a private window
+  the extension isn't allowed in, it MUST say that instead of suggesting a reload.
 - **FR-008**: The access check MUST also run in the Chrome build, where access is normally always
   granted, so both browsers share one popup. In Chrome it MUST change nothing visible when access
   is granted.
@@ -187,7 +188,7 @@ Mozilla's validator reports no errors.
 **Release**
 
 - **FR-011**: The Firefox package MUST be reproducible: the same commit and backend address give a
-  byte-identical package, and a source archive with written build instructions MUST be produced
+  package with identical files, and a source archive with written build instructions MUST be produced
   with it for Mozilla's review.
 - **FR-012**: Distribution: [NEEDS CLARIFICATION: listed on addons.mozilla.org (public, reviewed,
   installable on Firefox for Android) or unlisted (signed by Mozilla but self-distributed,
@@ -217,8 +218,8 @@ Mozilla's validator reports no errors.
 - **SC-002**: With Crunchyroll access removed, 100% of popup opens show the access card, and one
   click plus Firefox's prompt brings back a working scrape.
 - **SC-003**: Mozilla's validator reports 0 errors on the Firefox package.
-- **SC-004**: Two builds of the same commit and backend address give byte-identical Firefox
-  packages.
+- **SC-004**: Two builds of the same commit and backend address give Firefox packages with
+  identical files.
 - **SC-005**: The Chrome store package built from this branch is identical to one built from `main`
   apart from the popup's access check.
 - **SC-006**: If Android is in scope: on a phone, a signed-in user goes from opening the popup to a
