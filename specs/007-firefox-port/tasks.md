@@ -59,13 +59,13 @@ tested against a local fake server.
 
 **Independent test**: quickstart "Package and source"; the fake-AMO run of T009; actionlint clean.
 
-- [ ] T005 [US4] `scripts/package.mjs`: a `firefox` argument per `contracts/firefox-package.md`. With
+- [X] T005 [US4] `scripts/package.mjs`: a `firefox` argument per `contracts/firefox-package.md`. With
   no argument the script behaves exactly as today. With `firefox` it reads `dist-firefox`, refuses
   `localhost`, refuses a dirty tree (`git status --porcelain` non-empty, with the message naming
   why), zips to `release/frunchy-<version>-firefox.zip`, and writes
   `release/frunchy-<version>-source.zip` with `git archive --format=zip -o <path> HEAD`. Print both
   paths with sizes. Keep the script's style (ESM, `execFileSync`, short comments).
-- [ ] T006 [P] [US4] `store/firefox/SOURCE.md`: build instructions for Mozilla's reviewers (English).
+- [X] T006 [P] [US4] `store/firefox/SOURCE.md`: build instructions for Mozilla's reviewers (English).
   It covers the OS used (any; CI uses ubuntu-latest), Node 22.x and npm 10+,
   `npm ci`, `FRUNCHY_BACKEND_URL=https://frunchy.lacalabaza.xyz npm run build:firefox`, and that
   the output is `dist-firefox/`, identical to the submitted package. It also lists what is bundled
