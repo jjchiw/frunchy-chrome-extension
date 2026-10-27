@@ -179,6 +179,9 @@ tested against a local fake server.
 - [ ] T022 CLAUDE.md: the Firefox build in Commands; a "Firefox build" paragraph next to the store
   build one (mode, manifest differences, id, min versions, access check, release job, AMO); the
   `dist-firefox/service-worker-loader.js` check in the gotcha. After 006 lands, to avoid conflicts.
+- [ ] T023 `store/README.md` "How a release works": add the `publish-firefox` job (step 4 runs both
+  publish jobs, independently), the AMO secrets in the one-time setup, and a pointer to
+  `firefox/README.md` for the first listed version. After 006 lands, to avoid conflicts.
 - [ ] T030 Owner: a signed-in full scrape in desktop Firefox against the real backend, compared with
   Chrome (SC-001); the first listed AMO submission by hand; Bella secrets.
 
