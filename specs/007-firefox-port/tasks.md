@@ -11,11 +11,11 @@ tested against a local fake server.
 
 ## Phase 1: Setup
 
-- [ ] T001 `.gitignore`: add `dist-firefox` under the store build output block (rename that comment to
+- [X] T001 `.gitignore`: add `dist-firefox` under the store build output block (rename that comment to
   "Store build output"). `package.json`: add `"build:firefox": "vite build --mode firefox"` and
   `"package:firefox": "npm run build:firefox && node scripts/package.mjs firefox"` next to the
   store scripts, keeping the file's existing indentation.
-- [ ] T001a Before changing `vite.config.ts`: `npm run build` and
+- [X] T001a Before changing `vite.config.ts`: `npm run build` and
   `FRUNCHY_BACKEND_URL=https://frunchy.example npm run build:store`; copy both `manifest.json` files
   to `/Users/jjchiw/.claude/jobs/1a301f83/tmp/baseline/{dev,store}.manifest.json` (the baseline
   for T003).
@@ -26,7 +26,7 @@ tested against a local fake server.
 
 **Independent test**: quickstart "Build" and "Desktop Firefox" steps 1–3.
 
-- [ ] T002 [US1] `vite.config.ts`: a `firefox` mode per research R1/R2/R8 and
+- [X] T002 [US1] `vite.config.ts`: a `firefox` mode per research R1/R2/R8 and
   `contracts/firefox-package.md`. It shares the store's `storeBackendOrigin()` (the error text says
   "store and Firefox builds"), its host permissions and its `optional_host_permissions`. It also
   sets `background: { scripts: [devManifest.background.service_worker], type: "module" }`, deletes
@@ -37,7 +37,7 @@ tested against a local fake server.
   The `define` uses the origin as in store mode. Keep the existing comment style: one short comment
   says what the mode is for. Fix the manifest's type so `background.scripts` type-checks without
   `any`.
-- [ ] T003 [US1] Verify the builds: `npm run check`. Then `npm run build` and
+- [X] T003 [US1] Verify the builds: `npm run check`. Then `npm run build` and
   `FRUNCHY_BACKEND_URL=https://frunchy.example npm run build:store`, and diff both `manifest.json`
   files against the T001a baseline (expect identical).
   Then `FRUNCHY_BACKEND_URL=https://frunchy.example npm run build:firefox`. Check that
@@ -45,7 +45,7 @@ tested against a local fake server.
   imports `service-worker.ts-*.js`, that no file contains `localhost`, and that
   `npx --yes web-ext@8 lint --source-dir dist-firefox` reports 0 errors (3 known
   `UNSAFE_VAR_ASSIGNMENT` warnings, R7).
-- [ ] T004 [US1] Smoke-test the build in Firefox as a temporary add-on, using the spike harness in
+- [X] T004 [US1] Smoke-test the build in Firefox as a temporary add-on, using the spike harness in
   `/Users/jjchiw/.claude/jobs/1a301f83/tmp/spike/tools/` (`run.mjs`, needs geckodriver at
   `~/.cache/selenium/geckodriver/mac-arm64/0.37.1`). Change `ID` there to `frunchy@lacalabaza.xyz`
   first. Expect the hook installed on `/history`, the hook registered, `SCROLL_STATUS` answered, and

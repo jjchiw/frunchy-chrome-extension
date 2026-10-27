@@ -27,8 +27,9 @@ dist-ssr
 # impeccable: local review screenshots (they show real watch history) and local config
 .impeccable/review/
 .impeccable/config.local.json
-# Chrome Web Store build output
+# Store build output
 dist-store
+dist-firefox
 release
 scripts/store-assets/dist
 # Spec Kit: which feature is in progress is per checkout
