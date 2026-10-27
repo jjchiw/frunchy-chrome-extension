@@ -71,12 +71,12 @@ tested against a local fake server.
   the output is `dist-firefox/`, identical to the submitted package. It also lists what is bundled
   (Svelte 5 compiled with Vite 8 and @crxjs/vite-plugin; fonts from @fontsource; Material Symbols
   SVGs) and that `public/injected.js` is copied unminified.
-- [ ] T007 [US4] Reproducibility check (SC-004). Commit first, then
+- [X] T007 [US4] Reproducibility check (SC-004). Commit first, then
   `FRUNCHY_BACKEND_URL=https://frunchy.example npm run package:firefox`. Unzip the source archive
   into an empty directory under `/Users/jjchiw/.claude/jobs/1a301f83/tmp/`, follow SOURCE.md there,
   and `diff -r` its `dist-firefox` with the unzipped package. Expect no differences. Also check
   that `package.mjs firefox` refuses a dirty tree and a `localhost` build.
-- [ ] T008 [US4] `scripts/publish-firefox.sh` per research R9 and the contract. Model it on
+- [X] T008 [US4] `scripts/publish-firefox.sh` per research R9 and the contract. Model it on
   `scripts/publish-chrome.sh`: the header comment with usage and environment, `set -euo pipefail`,
   `fail()`, env checks, `::add-mask::` before any network call, and the Authorization header given
   to curl as a config on stdin. JWT: base64url of the header and claims (`jq -cn` for the claims,
@@ -94,7 +94,7 @@ tested against a local fake server.
   exists, `PATCH …/versions/<version>/` JSON `{approval_notes}` built with
   `jq -Rs '{approval_notes: .}'` → print "Submitted <version> for review" plus the version's
   `file.status` if present. API responses hold no secrets and may be printed on error.
-- [ ] T009 [US4] Test T008 against a fake AMO: a small Python 3 `http.server` in
+- [X] T009 [US4] Test T008 against a fake AMO: a small Python 3 `http.server` in
   `/Users/jjchiw/.claude/jobs/1a301f83/tmp/fakeamo/`, run with `python3 -I`, with
   `API_BASE=http://127.0.0.1:<port>` and `POLL_SECONDS=0`. The fake server must verify the JWT
   (HS256 over header.payload with the test secret, `iss`, `exp - iat <= 300`), check the multipart
