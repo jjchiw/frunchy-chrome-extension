@@ -126,30 +126,52 @@ submission notes say so, so a reviewer doesn't have to work it out.
 
 ## R8. Add-on id and data-collection declaration
 
-**Decision**: a fixed `gecko.id` committed in `vite.config.ts`. The owner picks it (for example
-`frunchy@<their domain>`) before the first upload, since it can't change later. Until then the
-build uses a placeholder that `package.mjs firefox` refuses. Data collection:
+**Decision**: `gecko.id` is `frunchy@lacalabaza.xyz` (owner, 2026-10-27), committed in
+`vite.config.ts`. Data collection:
 `required: ["websiteContent", "personallyIdentifyingInfo", "authenticationInfo"]`, which mirrors the
 Chrome privacy answers (history responses, profile id and name, sync key).
 
-**Alternatives considered**: `optional` data collection, asked when the user saves a sync key.
-More exact, since nothing leaves the browser without a key, but it's another runtime prompt and
-another permission flow. The owner can choose it in `/speckit-clarify`.
+**Alternatives considered**: `optional` data collection, asked for when the user saves a sync key.
+It's more exact, since nothing leaves the browser without a key, but it adds another runtime prompt
+and permission flow for little gain.
 
-## R9. Distribution and release (open owner questions, FR-012 and FR-013)
+## R9. Distribution and release: listed, submitted by the workflow
 
-The plan assumes, until the owner answers:
+**Decision** (owner, 2026-10-27): listed on AMO. The release workflow submits each new version.
 
-- **Listed on AMO** (FR-012). It's the only way Firefox for Android release users can install it.
-  Unlisted would be desktop-only and needs self-hosted update manifests.
-- **Build only in CI** (FR-013). The `package` job also builds the Firefox zip and the source
-  archive as artifacts, and the owner uploads both on AMO by hand. The first listed version has to
-  be created in the AMO web UI anyway (listing, categories, privacy policy).
+- The `package` job (no secrets) also runs `npm run package:firefox`. It uploads the Firefox zip and
+  the source zip as the artifact `frunchy-<version>-firefox`.
+- A new `publish-firefox` job (environment `production`, Bella Baxter OIDC, same conditions as
+  `publish`) downloads that artifact, gets `AMO_JWT_ISSUER` and `AMO_JWT_SECRET` from Bella, and
+  runs only `scripts/publish-firefox.sh`. Like `publish-chrome.sh`, that's bash, curl, jq and
+  openssl, and never npm.
+- `publish` and `publish-firefox` are independent jobs, so one store failing doesn't block or undo
+  the other. A dry run runs neither.
 
-Automating it later fits the workflow's rule that the job with secrets runs only our own
-bash/curl/jq script. That script would call AMO's API v5 with a JWT signed by `openssl` from the
-AMO API key and secret (held in Bella Baxter like the Chrome secrets). `web-ext sign` was
-rejected for that job, because it would run npm code next to secrets.
+`scripts/publish-firefox.sh <zip> <source zip>` against AMO API v5
+(<https://mozilla.github.io/addons-server/topics/api/>):
+1. JWT: header `{"alg":"HS256","typ":"JWT"}`, claims `iss` = API key, `jti` = random hex,
+   `iat` = now, `exp` = now + 60 (AMO allows at most 5 minutes). Signed with
+   `openssl dgst -sha256 -hmac` and base64url, and a new token for every request. The secret goes
+   to openssl through `-macopt hexkey:` or stdin rather than argv when possible. The header goes
+   to curl as a config on stdin, as in the Chrome script.
+2. `POST /api/v5/addons/upload/`, multipart `upload=@<zip>`, `channel=listed` → `uuid`.
+3. Poll `GET /api/v5/addons/upload/<uuid>/` until `processed`. If it isn't `valid`, print the
+   validation messages and fail. If `version` isn't `$VERSION`, fail.
+4. `POST /api/v5/addons/addon/frunchy@lacalabaza.xyz/versions/`, multipart `upload=<uuid>`,
+   `source=@<source zip>` (source can only be sent as multipart).
+5. `PATCH /api/v5/addons/addon/frunchy@lacalabaza.xyz/versions/<version>/`, JSON
+   `{"approval_notes": <store/firefox/approval-notes.md>}`. These are the reviewer notes: build
+   steps and the R7 warnings. They aren't a multipart field of version create.
+
+Version create inherits the license from the previous version, and the listing metadata (name,
+summary, categories) already exists. That's why the **first listed version is created by the owner
+in AMO's web UI**: it needs a license, summary and categories, which are not in the manifest. The
+script assumes the add-on exists and says so when AMO answers 404.
+
+**Alternatives considered**: `web-ext sign` (npm code next to the secrets, against the workflow's
+rule). `PUT /addons/addon/<guid>/`, which creates the add-on if missing: rejected so the first
+listing is reviewed by hand.
 
 ## R10. Interaction with 006 (auto-sync, in progress)
 

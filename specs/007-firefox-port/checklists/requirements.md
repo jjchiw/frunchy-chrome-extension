@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,8 +31,7 @@
 
 ## Notes
 
-- Two owner decisions remain open: FR-012 (listed on addons.mozilla.org or unlisted) and FR-013
-  (release workflow submits to Mozilla, or builds only). `plan.md` states the default it assumes for
-  each; `/speckit-clarify` records the owner's answers.
+- The owner answered FR-012 (listed), FR-013 (the workflow submits) and the add-on id on
+  2026-10-27; recorded under Clarifications in the spec.
 - Like the 005 spec, this one names a few platform facts (event page, add-on id, minimum versions,
   validator) because they are what the owner decides on; the how is in `plan.md`.

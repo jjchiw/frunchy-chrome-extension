@@ -19,8 +19,11 @@ changes, so the port is mostly packaging plus one popup state:
    small fallbacks follow: finding the Crunchyroll tab when the popup is its own tab, and hiding
    Download JSON if it can't save. Otherwise Android is dropped and desktop ships alone.
 4. **Release**: `npm run package:firefox` writes the Firefox zip and a `git archive` source zip with
-   reviewer build instructions. CI builds both. Uploading to AMO is by hand until the owner answers
-   FR-013. Listing texts, privacy answers and the owner's checklist go in `store/firefox/`.
+   reviewer build instructions. The release workflow builds both in `package`, and a new
+   `publish-firefox` job submits them to AMO as a new listed version through
+   `scripts/publish-firefox.sh` (bash/curl/jq/openssl, AMO API v5, R9). The owner creates the first
+   listed version by hand. Listing texts, privacy answers, reviewer notes and the owner's checklist
+   go in `store/firefox/`. Add-on id `frunchy@lacalabaza.xyz`.
 
 ## Technical Context
 
@@ -43,8 +46,9 @@ states, screenshots in en/es with the height measured. Android goes through the 
 included. `permissions.request` only from a click. The package must be reproducible from
 `git archive HEAD`. The job with secrets in the release workflow runs only our scripts.
 
-**Scale/Scope**: `vite.config.ts`, `package.json`, `scripts/package.mjs`,
-`.github/workflows/release.yml` (`package` job), `Popup.svelte`, `Icon.svelte` (one icon), two
+**Scale/Scope**: `vite.config.ts`, `package.json`, `scripts/package.mjs`, new
+`scripts/publish-firefox.sh`, `.github/workflows/release.yml` (`package` job, new
+`publish-firefox` job), `Popup.svelte`, `Icon.svelte` (one icon), two
 locale files, `.gitignore` (`dist-firefox/`), new `store/firefox/` (README, listing en/es,
 privacy, SOURCE.md), CLAUDE.md.
 
@@ -59,7 +63,8 @@ privacy, SOURCE.md), CLAUDE.md.
 | Fonts and icons bundled, never remote | Pass: nothing new remote; the new icon is added to `Icon.svelte` |
 | Popup fits 600 px, Spanish included | Must re-measure: the access card replaces the main card's text; it must not exceed the tallest current state (594 px) |
 | UI strings localised en/es | Pass: new `hero_access_*`, `hero_private_*`, `allow_access` keys in both |
-| Release: the secrets job runs only our script; npm only in the job without secrets | Pass: Firefox packaging goes in `package`; `publish` doesn't change |
+| Release: the secrets job runs only our script; npm only in the job without secrets | Pass: Firefox packaging goes in `package`; `publish-firefox` runs only `publish-firefox.sh` (no npm, no `web-ext sign`); `publish` doesn't change |
+| Every action pinned to a SHA | Pass: `publish-firefox` reuses the pins already in the workflow |
 | Store images use invented data only | Pass: AMO screenshots reuse the store-assets fixtures |
 | No token or header leaves the page world | Pass: `injected.js` doesn't change |
 
@@ -81,12 +86,15 @@ specs/007-firefox-port/          spec, plan, research, data-model, quickstart, c
 vite.config.ts                   firefox mode: derived manifest, crx({ browser: "firefox" }), dist-firefox/
 package.json                     build:firefox, package:firefox
 scripts/package.mjs              "firefox" target: firefox zip + git-archive source zip, refusals
-.github/workflows/release.yml    package job: also package:firefox, upload the artifact
+scripts/publish-firefox.sh       AMO API v5 upload + version create with source (new)
+.github/workflows/release.yml    package: also package:firefox; new publish-firefox job; name "Release"
 .gitignore                       dist-firefox/
 src/components/Popup.svelte      access + private states, Android tab fallback, platform-gated download
 src/components/Icon.svelte       lock_open
 public/_locales/{en,es}/messages.json
-store/firefox/                   README (owner checklist), listing.{en,es}.md, privacy.md, SOURCE.md
+store/firefox/                   README (owner checklist + AMO setup), listing.{en,es}.md, privacy.md,
+                                 SOURCE.md (reviewer build steps), approval-notes.md
+store/README.md                  workflow name, link to store/firefox/
 CLAUDE.md                        Firefox build, access check, commands
 ```
 
@@ -95,9 +103,10 @@ directories.
 
 ## Phases
 
-0. **Gate checks (owner)**: answer FR-012 and FR-013 (`/speckit-clarify`); pick the add-on id; run
-   R5.1 on a phone or the emulator (signed-in `/history` and scrape with a temporary install).
-1. **Build + package + CI** (no overlap with 006): R1, R2, R6, R8, `web-ext lint`.
+0. **Gate check (owner)**: R5.1 on a phone or the emulator (signed-in `/history` and scrape with a
+   temporary install). FR-012, FR-013 and the id were answered on 2026-10-27.
+1. **Build + package + CI + AMO submission** (no overlap with 006): R1, R2, R6, R8, R9,
+   `web-ext lint`.
 2. **Popup access/private states** (after 006's popup change): R3, R4; en/es, height check.
 3. **Android fallbacks** (only if R5.1 passes): R5.2–R5.4.
 4. **Docs and listing**: `store/firefox/`, CLAUDE.md.

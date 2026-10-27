@@ -13,6 +13,17 @@ needs a spike, `world: "MAIN"` needs Firefox 128+, Firefox treats MV3 host permi
 Crunchyroll on Firefox for Android is unverified, and AMO needs a gecko id, signing, the source code
 with build instructions, and data-collection declarations.
 
+## Clarifications
+
+### Session 2026-10-27
+
+- Q: Listed on addons.mozilla.org or unlisted? → A: Listed (public, reviewed, installable on
+  Firefox for Android).
+- Q: Should the release workflow submit the Firefox package to Mozilla, or only build it? → A:
+  Submit: the workflow uploads the package and the source archive to Mozilla as a new listed
+  version, as it does for Chrome.
+- Q: The permanent add-on id? → A: `frunchy@lacalabaza.xyz`.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Scrape and sync from desktop Firefox (Priority: P1)
@@ -126,8 +137,12 @@ Mozilla's validator reports no errors.
    Chrome package.
 2. **Given** the source archive and its instructions, **When** a reviewer follows them, **Then**
    they get a package identical to the submitted one.
-3. **Given** a release, **Then** the Chrome package and its publishing behave exactly as today.
-4. **Given** the Firefox package, **When** Mozilla's validator checks it, **Then** it reports no
+3. **Given** a release, **Then** the Chrome package and its publishing behave exactly as today,
+   and the same run submits the Firefox package with its source archive to Mozilla as a new listed
+   version.
+4. **Given** the Firefox submission fails (validation, credentials, version already uploaded),
+   **Then** the run says why, and the Chrome publishing is not affected.
+5. **Given** the Firefox package, **When** Mozilla's validator checks it, **Then** it reports no
    errors.
 
 ### Edge Cases
@@ -190,12 +205,14 @@ Mozilla's validator reports no errors.
 - **FR-011**: The Firefox package MUST be reproducible: the same commit and backend address give a
   package with identical files, and a source archive with written build instructions MUST be produced
   with it for Mozilla's review.
-- **FR-012**: Distribution: [NEEDS CLARIFICATION: listed on addons.mozilla.org (public, reviewed,
-  installable on Firefox for Android) or unlisted (signed by Mozilla but self-distributed,
-  desktop only)?]
-- **FR-013**: Release automation: [NEEDS CLARIFICATION: should the release workflow also sign and
-  submit the Firefox package to Mozilla with API credentials, as it does for Chrome, or only build
-  the package and source archive for the owner to upload by hand?]
+- **FR-012**: The Firefox version MUST be distributed as a listed add-on on addons.mozilla.org.
+  The first version is submitted by the owner by hand (it sets the listing, categories and
+  license); later versions come from the release workflow.
+- **FR-013**: A release MUST submit the Firefox package and its source archive to Mozilla as a new
+  listed version of the existing add-on, from the same run and commit as the Chrome release. The
+  credentials MUST be available only to the publishing step, as the Chrome ones are, and only our
+  own script may see them. A Firefox failure MUST NOT stop or undo the Chrome publishing, and
+  vice versa. A dry run MUST submit nothing.
 - **FR-014**: The listing texts (English and Spanish), the privacy answers and the owner's
   checklist for Mozilla MUST be written next to the Chrome ones, and CLAUDE.md MUST describe the
   Firefox build.
@@ -218,6 +235,9 @@ Mozilla's validator reports no errors.
 - **SC-002**: With Crunchyroll access removed, 100% of popup opens show the access card, and one
   click plus Firefox's prompt brings back a working scrape.
 - **SC-003**: Mozilla's validator reports 0 errors on the Firefox package.
+- **SC-007**: A release run with `publish` on needs 0 hand steps for Firefox after the first
+  version: the new version appears in the add-on's Mozilla dashboard awaiting review, with its
+  source attached.
 - **SC-004**: Two builds of the same commit and backend address give Firefox packages with
   identical files.
 - **SC-005**: The Chrome store package built from this branch is identical to one built from `main`
@@ -237,8 +257,7 @@ Mozilla's validator reports no errors.
   it is the first task of the plan and gates User Story 3.
 - Minimum versions are Firefox 140 on desktop and 142 on Android: the first that read the
   data-collection declaration, above the 128 that the hook's page-world registration needs.
-- The add-on id is permanent once submitted; the owner chooses it (for example
-  `frunchy@<their domain>`).
+- The add-on id is `frunchy@lacalabaza.xyz`, permanent once submitted.
 - The Firefox package uses the same default backend as the Chrome store build
   (`FRUNCHY_BACKEND_URL`) and the same self-hosting rules.
 - Creating the Mozilla developer account, API keys, the listing and any submission are the owner's
