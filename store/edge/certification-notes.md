@@ -1,0 +1,7 @@
+Notes for the certification testers
+
+What it does: Frunchy reads the signed-in user's own Crunchyroll watch history and uploads it to the user's Frunchy account, only after the user enters a sync key. It talks to www.crunchyroll.com and to the Frunchy server the user configured (the default is https://frunchy.lacalabaza.xyz; the user can replace it in the settings, and Edge then asks for that one site). It talks to nothing else. It has no remote code: everything it runs is bundled in the package, fonts and icons included.
+
+public/injected.js is registered with scripting.registerContentScripts in the page's own world (world: "MAIN") at document_start. It has to run there, before Crunchyroll's scripts, because it wraps XMLHttpRequest to read the responses of Crunchyroll's own watch-history and profile requests. It posts only the history responses and the profile id and name to the extension's content script with window.postMessage. The sign-in header of the site's requests is reused only for the next-page requests to Crunchyroll and is never posted, logged or stored. The file is plain JavaScript, copied unminified.
+
+Testing: exercising the extension needs a Crunchyroll account, signed in at https://www.crunchyroll.com/history, and a Frunchy sync key from a Frunchy server. Without a key it only stores the history in the browser, which Download JSON in the popup then exports. The popup and the settings page open without an account. A tester without a Crunchyroll account can check the popup, the settings page and the permissions, but not a scrape.

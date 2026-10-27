@@ -29,14 +29,14 @@ concurrency:
     group: store-release
     cancel-in-progress: false
 
-# Four jobs on purpose. `release` may write to the repository (the version commit
+# Five jobs on purpose. `release` may write to the repository (the version commit
 # and its tag), so it runs no third-party code: only git, Node and npm's own
 # `version` command through scripts/set-version.mjs, never `npm ci`. `package` runs
 # npm and its third-party code, so it never gets write access, secrets or an OIDC
-# token. `publish` and `publish-firefox` get the secrets and run only
-# scripts/publish-chrome.sh and scripts/publish-firefox.sh (bash, curl, jq and
-# openssl), never npm. They don't depend on each other: one store failing doesn't
-# block or undo the other.
+# token. `publish`, `publish-firefox` and `publish-edge` get the secrets and run only
+# scripts/publish-chrome.sh, scripts/publish-firefox.sh and scripts/publish-edge.sh
+# (bash, curl, jq and openssl), never npm. They don't depend on each other: one store
+# failing doesn't block or undo the others. Edge gets the same zip as Chrome.
 #
 # Every `uses:` is pinned to a full commit SHA; the comment names the release.
 # Raise a pin by looking up the new tag's commit, not by moving to a tag.
@@ -231,5 +231,44 @@ jobs:
             # not mask them in the log; publish-firefox.sh masks them itself.
             - name: Upload and submit for review
               run: bella run -- bash scripts/publish-firefox.sh "release/frunchy-$VERSION-firefox.zip" "release/frunchy-$VERSION-source.zip"
+              env:
+                  VERSION: ${{ needs.package.outputs.version }}
+
+    publish-edge:
+        needs: [release, package]
+        if: ${{ !cancelled() && needs.package.result == 'success' && (github.event_name == 'push' || needs.release.result == 'success') }}
+        runs-on: ubuntu-latest
+        # Same environment rule as `publish`.
+        environment: production
+        permissions:
+            contents: read
+            id-token: write
+        env:
+            BELLA_BAXTER_URL: https://api.bella-baxter.io
+            BELLA_BAXTER_TENANT: ${{ vars.BELLA_BAXTER_TENANT }}
+            BELLA_BAXTER_PROJECT: ${{ vars.BELLA_BAXTER_PROJECT }}
+            BELLA_BAXTER_ENV: ${{ vars.BELLA_BAXTER_ENV || 'production' }}
+        steps:
+            # Only the publish script and the certification notes are needed here, not the sources.
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+                  sparse-checkout: |
+                      scripts/publish-edge.sh
+                      store/edge/certification-notes.md
+                  sparse-checkout-cone-mode: false
+            # Edge runs the Chrome package unchanged.
+            - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+              with:
+                  name: frunchy-${{ needs.package.outputs.version }}
+                  path: release/
+            - uses: cosmic-chimps/bella-baxter-setup-action@cf993ff9e477ec89370abb7f166a4e48a2786693 # v0.1.1-preview.137
+              with:
+                  version: 0.1.1-preview.137
+                  oidc: "true"
+            # `bella run` injects the Bella secrets into this one process only and does
+            # not mask them in the log; publish-edge.sh masks them itself.
+            - name: Upload and submit for certification
+              run: bella run -- bash scripts/publish-edge.sh "release/frunchy-$VERSION.zip"
               env:
                   VERSION: ${{ needs.package.outputs.version }}

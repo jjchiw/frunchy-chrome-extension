@@ -1,7 +1,7 @@
 # Chrome Web Store material
 
 Everything needed to list Frunchy on the Chrome Web Store, except what only the owner can do (see the
-checklist below). The Firefox add-on is in `firefox/README.md`.
+checklist below). The Firefox add-on is in `firefox/README.md`. The Edge add-on is in `edge/README.md`.
 
 ## What's here
 
