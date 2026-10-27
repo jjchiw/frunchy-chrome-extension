@@ -104,7 +104,7 @@ tested against a local fake server.
   missing env var; missing zip. Also check the script's HMAC against `openssl dgst -sha256 -hmac`
   for a 64-hex secret and a >64-byte secret (in the test only). Run `ps` while it runs, or reason
   from the code, to confirm the secret never appears in argv. Record the outputs in the report.
-- [ ] T010 [US4] `.github/workflows/release.yml` per the contract. Rename it to `name: Release`. In
+- [X] T010 [US4] `.github/workflows/release.yml` per the contract. Rename it to `name: Release`. In
   `package`, after `npm run package`, add `npm run package:firefox` with the same
   `FRUNCHY_BACKEND_URL` env and an `upload-artifact` (same pinned SHA) named
   `frunchy-${{ steps.version.outputs.version }}-firefox` with both files. Add a new
@@ -115,10 +115,10 @@ tested against a local fake server.
   with `VERSION` in `env`. Update the top comment (the jobs and what each may do) and the
   concurrency group name to `store-release`. Keep the SHA pins, 4-space YAML, and no `${{ }}`
   inside `run:`.
-- [ ] T011 [US4] Lint with `/Users/jjchiw/.claude/jobs/1a301f83/tmp/tools/actionlint`
+- [X] T011 [US4] Lint with `/Users/jjchiw/.claude/jobs/1a301f83/tmp/tools/actionlint`
   (`-shellcheck /Users/jjchiw/.claude/jobs/1a301f83/tmp/tools/shellcheck`) and run shellcheck on
   both publish scripts. No findings.
-- [ ] T012 [P] [US4] `store/firefox/`: `README.md` (what's here; build the upload; the owner checklist
+- [X] T012 [P] [US4] `store/firefox/`: `README.md` (what's here; build the upload; the owner checklist
   for AMO: developer account and 2FA; first listed version by hand with the zip, the source zip and
   SOURCE.md, license, categories, summary from `listing.*.md`, privacy policy URL, screenshots
   reused from `store/images/`; then API credentials at
@@ -131,7 +131,7 @@ tested against a local fake server.
   `approval-notes.md` (short notes for reviewers: how to build (point to SOURCE.md in the source
   archive), what `injected.js` does and why it runs in the page world, the R7 warnings, that a
   Crunchyroll account is needed to exercise it).
-- [ ] T013 [US4] `store/README.md`: the workflow's new name in "How a release works", and one line
+- [X] T013 [US4] `store/README.md`: the workflow's new name in "How a release works", and one line
   near the top pointing to `store/firefox/README.md` for the Firefox add-on. No other changes
   (006 edits this directory).
 

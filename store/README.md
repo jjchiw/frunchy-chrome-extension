@@ -1,7 +1,7 @@
 # Chrome Web Store material
 
 Everything needed to list Frunchy on the Chrome Web Store, except what only the owner can do (see the
-checklist below).
+checklist below). The Firefox add-on is in `firefox/README.md`.
 
 ## What's here
 
@@ -59,7 +59,7 @@ is missing or not `https://`, or if the output mentions `localhost`.
 
 ### How a release works
 
-Open **Actions**, **Release to Chrome Web Store**, **Run workflow**, on `main`:
+Open **Actions**, **Release**, **Run workflow**, on `main`:
 
 1. Type the `version` (`major.minor.patch`, higher than the current one), or leave it blank for the
    next patch (`0.1.1` becomes `0.1.2`), and tick `publish`.
